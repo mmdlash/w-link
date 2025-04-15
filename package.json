@@ -1,0 +1,17 @@
+{
+    "name": "walletconnect-bnb-transfer",
+    "version": "1.0.0",
+    "description": "پروژه ساده برای اتصال کیف پول با WalletConnect و ارسال BNB با ethers.js",
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview"
+    },
+    "dependencies": {
+      "@walletconnect/ethereum-provider": "^2.10.5",
+      "ethers": "^6.8.1"
+    },
+    "devDependencies": {
+      "vite": "^5.0.0"
+    }
+}
