@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WalletConnect + Ethers + BNB</title>
-  </head>
-  <body>
-    <h2>اتصال به کیف پول BNB با WalletConnect</h2>
-    <button id="connect">اتصال کیف پول</button>
-    <p id="address">آدرس: </p>
-    <p id="balance">موجودی: </p>
-    <button id="sendAll">ارسال کل BNB</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WalletConnect BNB Example</title>
+</head>
+<body>
+  <button id="connectBtn">Connect Wallet</button>
+  <p>Address: <span id="address">Not connected</span></p>
+  <p>BNB Balance: <span id="balance">-</span></p>
 
-    <script type="module" src="./main.js"></script>
-  </body>
+  <script type="module" src="./main.js"></script>
+</body>
 </html>

