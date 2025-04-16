@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite --host"
   },
   "devDependencies": {
     "vite": "^6.2.0"
