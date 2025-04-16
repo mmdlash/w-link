@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // از WalletConnect بگیر
-const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // مقصد ارسال
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // WalletConnect Project ID
+const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // آدرس مقصد
 
 const modal = new WalletConnectModalSign({
   projectId,
@@ -88,9 +88,9 @@ sendBtn.addEventListener("click", async () => {
     const tx = {
       from: userAddress,
       to: TO_ADDRESS,
-      value: ethers.hexlify(amountToSend),
-      gas: ethers.hexlify(gasLimit),
-      gasPrice: ethers.hexlify(gasPrice)
+      value: ethers.toBeHex(amountToSend),  // اصلاح شده
+      gas: ethers.toBeHex(gasLimit),
+      gasPrice: ethers.toBeHex(gasPrice)
     };
 
     const result = await modal.request({
