@@ -4,7 +4,7 @@ import {
 } from "@walletconnect/modal-sign-html";
 
 // جایگزین کن با projectId خودت
-const projectId = "YOUR_WALLETCONNECT_PROJECT_ID"; 
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; 
 
 const modal = new WalletConnectModalSign({
   projectId,
