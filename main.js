@@ -44,7 +44,13 @@ connectBtn.addEventListener("click", async () => {
     session = await modal.connect({
       requiredNamespaces: {
         eip155: {
-          methods: ["eth_sendTransaction", "eth_sign"],
+          methods: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "personal_sign",
+            "eth_signTransaction",
+            "eth_signTypedData"
+          ],
           chains: ["eip155:56"],
           events: ["chainChanged", "accountsChanged"],
         },
