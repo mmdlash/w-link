@@ -1,25 +1,18 @@
 import { ethers } from "ethers";
-import {
-  WalletConnectModalSign
-} from "@walletconnect/modal-sign-html";
+import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 
-// جایگزین کن با projectId خودت
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; 
+// WalletConnect project ID خودت رو اینجا بذار
+const projectId = "YOUR_WALLETCONNECT_PROJECT_ID";
 
 const modal = new WalletConnectModalSign({
   projectId,
-  enableExplorer: false, // اختیاری: برای غیرفعال کردن modal wallet explorer
   metadata: {
     name: "BNB Wallet App",
-    description: "WalletConnect BNB Example",
+    description: "Send all BNB using WalletConnect",
     url: "http://localhost",
     icons: ["https://walletconnect.com/walletconnect-logo.png"],
   },
-  explorerRecommendedWalletIds: [
-    // لیست ولت‌هایی که پشتیبانی کنیم (فقط موبایل)
-    "trust",
-    "metamask"
-  ],
+  explorerRecommendedWalletIds: ["trust", "metamask"],
   mobileWallets: [
     {
       id: "trust",
@@ -39,8 +32,11 @@ const modal = new WalletConnectModalSign({
 });
 
 const connectBtn = document.getElementById("connectBtn");
+const sendBtn = document.getElementById("sendBtn");
 const addressSpan = document.getElementById("address");
 const balanceSpan = document.getElementById("balance");
+
+let signer;
 
 connectBtn.addEventListener("click", async () => {
   try {
@@ -58,11 +54,45 @@ connectBtn.addEventListener("click", async () => {
     const address = account.split(":")[2];
     addressSpan.textContent = address;
 
-    const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+
     const balance = await provider.getBalance(address);
     const bnb = ethers.formatEther(balance);
-    balanceSpan.textContent = `${bnb} BNB`;
+    balanceSpan.textContent = $`{bnb} BNB`;
+
   } catch (err) {
     console.error("Connection failed", err);
+  }
+});
+
+sendBtn.addEventListener("click", async () => {
+  if (!signer) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
+  try {
+    const sender = await signer.getAddress();
+    const provider = signer.provider;
+    const balance = await provider.getBalance(sender);
+
+    const gasLimit = 21000n;
+    const gasPrice = await provider.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
+    const fee = gasLimit * gasPrice;
+    const amountToSend = balance - fee;
+
+    const tx = {
+      to: "0xYourRecipientAddressHere", // <-- آدرس مقصد رو اینجا بذار
+      value: amountToSend,
+      gasLimit,
+      gasPrice
+    };
+
+    const txResponse = await signer.sendTransaction(tx);
+    alert(`Transaction sent!\nTx Hash: ${txResponse.hash}`);
+  } catch (err) {
+    console.error("Transaction failed", err);
+    alert("Transaction failed: " + err.message);
   }
 });
