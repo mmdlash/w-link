@@ -2,7 +2,7 @@ import SignClient from "@walletconnect/sign-client";
 import { ethers } from "ethers";
 
 // جایگزین کن با Project ID واقعی از WalletConnect Cloud
-const projectId = "YOUR_PROJECT_ID";
+const projectId = "4d08946e6c316bed5e76b450ccbb5256";
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
 let client;
