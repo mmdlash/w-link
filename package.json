@@ -1,5 +1,5 @@
 {
-  "name": "walletconnect-bnb",
+  "name": "walletconnect-html-bnb",
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
@@ -7,7 +7,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@walletconnect/modal": "^2.7.0",
+    "@walletconnect/modal-sign-html": "^2.7.0",
     "ethers": "^6.13.5"
   },
   "devDependencies": {
