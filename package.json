@@ -1,18 +1,16 @@
 {
-  "name": "walletconnect-direct",
+  "name": "walletconnect-bnb",
   "version": "1.0.0",
-  "description": "Connect Trust Wallet and MetaMask with WalletConnect SignClient",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@walletconnect/sign-client": "^2.7.0",
+    "@walletconnect/modal": "^2.7.0",
     "ethers": "^6.13.5"
   },
   "devDependencies": {
     "vite": "^6.2.0"
   }
 }
-
