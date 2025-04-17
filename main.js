@@ -1,35 +1,37 @@
-import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
+import SignClient from "@walletconnect/sign-client";
 import { ethers } from "ethers";
 
-// جایگزین کن با Project ID خودت از WalletConnect
+// جایگزین کن با Project ID واقعی از WalletConnect Cloud
 const projectId = "4d08946e6c316bed5e76b450ccbb5256";
-
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
+let client;
+let session;
 let userAddress = null;
-let session = null;
 
-const modal = new WalletConnectModalSign({
-  projectId,
-  metadata: {
-    name: "BNB Wallet App",
-    description: "Direct connect to Trust and MetaMask",
-    url: "https://yourdomain.com",
-    icons: ["https://walletconnect.com/walletconnect-logo.png"]
-  }
+document.getElementById("connectTrust").addEventListener("click", () => {
+  connectWithWallet("trust");
 });
 
-document.getElementById("connectTrust").addEventListener("click", async () => {
-  await connectWithWallet("trust");
+document.getElementById("connectMetaMask").addEventListener("click", () => {
+  connectWithWallet("metamask");
 });
 
-document.getElementById("connectMetaMask").addEventListener("click", async () => {
-  await connectWithWallet("metamask");
-});
-
-async function connectWithWallet(walletType) {
+async function connectWithWallet(wallet) {
   try {
-    const { uri, approval } = await modal.signClient.connect({
+    if (!client) {
+      client = await SignClient.init({
+        projectId,
+        metadata: {
+          name: "BNB Sender App",
+          description: "Send BNB to an address",
+          url: "https://yourdomain.com",
+          icons: ["https://walletconnect.com/walletconnect-logo.png"]
+        }
+      });
+    }
+
+    const { uri, approval } = await client.connect({
       requiredNamespaces: {
         eip155: {
           methods: ["eth_sendTransaction"],
@@ -40,16 +42,11 @@ async function connectWithWallet(walletType) {
     });
 
     if (uri) {
-      const encodedUri = encodeURIComponent(uri);
-      let deepLink = "";
-
-      if (walletType === "trust") {
-        deepLink = `https://link.trustwallet.com/wc?uri=${encodedUri}`;
-      } else if (walletType === "metamask") {
-        deepLink = `https://metamask.app.link/wc?uri=${encodedUri}`;
-      }
-
-      window.location.href = deepLink;
+      const encoded = encodeURIComponent(uri);
+      const link = wallet === "trust"
+        ? `https://link.trustwallet.com/wc?uri=${encoded}`
+        : `https://metamask.app.link/wc?uri=${encoded}`;
+      window.location.href = link;
     }
 
     session = await approval();
@@ -58,8 +55,7 @@ async function connectWithWallet(walletType) {
     document.getElementById("address").textContent = address;
 
     const balance = await provider.getBalance(address);
-    const bnb = ethers.formatEther(balance);
-    document.getElementById("balance").textContent = `${bnb} BNB`;
+    document.getElementById("balance").textContent = `${ethers.formatEther(balance)} BNB`;
 
   } catch (err) {
     console.error("Connection error:", err);
