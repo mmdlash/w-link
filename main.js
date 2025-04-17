@@ -2,7 +2,7 @@ import SignClient from "@walletconnect/sign-client";
 import { ethers } from "ethers";
 
 // جایگزین کن با Project ID واقعی از WalletConnect Cloud
-const projectId = "4d08946e6c316bed5e76b450ccbb5256";
+const projectId = "YOUR_PROJECT_ID";
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
 let client;
@@ -43,9 +43,14 @@ async function connectWithWallet(wallet) {
 
     if (uri) {
       const encoded = encodeURIComponent(uri);
-      const link = wallet === "trust"
-        ? `https://link.trustwallet.com/wc?uri=${encoded}`
-        : `https://metamask.app.link/wc?uri=${encoded}`;
+      let link = "";
+
+      if (wallet === "trust") {
+        link = `https://link.trustwallet.com/wc?uri=${encoded}`;
+      } else if (wallet === "metamask") {
+        link = `metamask://wc?uri=${encoded}`; // استفاده از native link
+      }
+
       window.location.href = link;
     }
 
