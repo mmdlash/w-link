@@ -31,7 +31,7 @@ async function connectWithWallet(wallet) {
     const { uri, approval } = await client.connect({
       requiredNamespaces: {
         eip155: {
-          methods: ["eth_sendTransaction"],
+          methods: ["wallet_sendTransaction", "eth_sendTransaction"],
           chains: ["eip155:56"],
           events: ["accountsChanged", "chainChanged"]
         }
