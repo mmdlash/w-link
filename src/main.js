@@ -43,7 +43,7 @@ async function startConnection() {
       showQrModal: false,  // نمایش خودکار QR مودال غیرفعال
       requiredNamespaces: {
         eip155: {
-          chains: ["eip155:56"],     // BNB Smart Chain
+          chains: [56],     // BNB Smart Chain
           methods: [
             "eth_sendTransaction",
             "eth_signTransaction",
