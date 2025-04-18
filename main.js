@@ -2,54 +2,59 @@ import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 import { WalletConnectModal } from '@walletconnect/modal';
 
+const connectBtn = document.getElementById('connectBtn');
+const addressEl = document.getElementById('address');
+const balanceEl = document.getElementById('balance');
+
 let wcProvider;
 let modal;
 
-document.getElementById('connectBtn').addEventListener('click', async () => {
+connectBtn.addEventListener('click', async () => {
   try {
-    // ابتدا provider رو مقداردهی کن
+    // تعریف modal قبل از connect
+    modal = new WalletConnectModal({
+      projectId: '4d08946e6c316bed5e76b450ccbb5256', // ← projectId واقعی از cloud.walletconnect.com
+      standaloneChains: ['eip155:56'],
+      themeMode: 'light',
+    });
+
+    // ساخت provider
     wcProvider = await EthereumProvider.init({
       projectId: '4d08946e6c316bed5e76b450ccbb5256',
       chains: [56],
-      showQrModal: false, // چون modal جداست
+      showQrModal: false,
       rpcMap: {
         56: 'https://bsc-dataseed.binance.org',
       },
       metadata: {
-        name: 'BNB Wallet App',
-        description: 'Demo for WalletConnect Modal',
+        name: 'My BNB Dapp',
+        description: 'Demo WalletConnect Dapp',
         url: window.location.origin,
-        icons: ['https://walletconnect.com/walletconnect-logo.png'],
+        icons: ['https://walletconnect.com/walletconnect-logo.png']
       },
     });
 
-    // حالا modal رو بعد از داشتن URI بساز
-    modal = new WalletConnectModal({
-      projectId: '4d08946e6c316bed5e76b450ccbb5256',
-      standaloneChains: ['eip155:56'],
-      themeMode: 'light'
-    });
-
-    // اتصال و باز شدن modal
-    await wcProvider.connect();
-
+    // باز کردن modal با URI
     if (wcProvider.uri) {
       modal.openModal({ uri: wcProvider.uri });
     }
 
-    // دریافت اطلاعات کیف پول
+    // شروع اتصال (کاربر کیف پول انتخاب می‌کند)
+    await wcProvider.connect();
+
+    // گرفتن آدرس و موجودی با ethers.js
     const ethersProvider = new ethers.BrowserProvider(wcProvider);
     const signer = await ethersProvider.getSigner();
     const address = await signer.getAddress();
     const balance = await ethersProvider.getBalance(address);
 
-    document.getElementById('address').textContent =` آدرس: ${address}`;
-    document.getElementById('balance').textContent =` موجودی: ${ethers.formatEther(balance)} BNB`;
+    addressEl.textContent =` آدرس: ${address}`;
+    balanceEl.textContent =` موجودی: ${ethers.formatEther(balance)} BNB`;
 
     modal.closeModal();
 
-  } catch (err) {
-    console.error('خطا در اتصال:', err);
+  } catch (error) {
+    console.error('خطا در اتصال:', error);
     alert('اتصال به کیف پول انجام نشد');
   }
 });
