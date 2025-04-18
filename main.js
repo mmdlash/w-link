@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   connectBtn.addEventListener('click', async () => {
     try {
       const wcProvider = await EthereumProvider.init({
-        projectId: 'YOUR_PROJECT_ID', // ← Project ID واقعی‌تو بذار
+        projectId: '4d08946e6c316bed5e76b450ccbb5256', // ← Project ID واقعی‌تو بذار
         chains: [56],
         showQrModal: false,
         rpcMap: {
