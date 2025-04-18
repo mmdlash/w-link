@@ -1,14 +1,14 @@
 // src/main.js
-import { EthereumProvider } from "@walletconnect/ethereum-provider";
-import Modal           from "@walletconnect/modal";  // ← به‌صورت default import
-import { ethers }      from "ethers";
+import { EthereumProvider }       from "@walletconnect/ethereum-provider";
+import { WalletConnectModal }     from "@walletconnect/modal";   // ← اینو تغییر دادیم
+import { ethers }                 from "ethers";
 
 const TARGET_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 const PROJECT_ID     = "4d08946e6c316bed5e76b450ccbb5256";
 
 (async () => {
   // ۱. نمونه‌سازی Modal و Provider
-  const modal = new Modal({
+  const modal = new WalletConnectModal({
     projectId: PROJECT_ID,
     walletConnectOptions: { version: 2 },
     themeVariables: {}
