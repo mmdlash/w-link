@@ -3,43 +3,46 @@ import EthereumProvider from '@walletconnect/ethereum-provider';
 import { WalletConnectModal } from '@walletconnect/modal';
 
 let wcProvider;
-
-// راه‌اندازی Modal
-const modal = new WalletConnectModal({
-  projectId: '4d08946e6c316bed5e76b450ccbb5256', // ← حتماً جایگزین کن
-  standaloneChains: ['eip155:56'],
-  themeMode: 'light'
-});
+let modal;
 
 document.getElementById('connectBtn').addEventListener('click', async () => {
   try {
+    // ابتدا provider رو مقداردهی کن
     wcProvider = await EthereumProvider.init({
       projectId: '4d08946e6c316bed5e76b450ccbb5256',
       chains: [56],
-      showQrModal: false,
+      showQrModal: false, // چون modal جداست
       rpcMap: {
         56: 'https://bsc-dataseed.binance.org',
       },
       metadata: {
-        name: 'My BNB App',
-        description: 'Demo WalletConnect Modal + ethers.js',
+        name: 'BNB Wallet App',
+        description: 'Demo for WalletConnect Modal',
         url: window.location.origin,
         icons: ['https://walletconnect.com/walletconnect-logo.png'],
-      }
+      },
     });
 
-    // باز کردن Modal
-    modal.openModal({ uri: wcProvider.uri });
+    // حالا modal رو بعد از داشتن URI بساز
+    modal = new WalletConnectModal({
+      projectId: '4d08946e6c316bed5e76b450ccbb5256',
+      standaloneChains: ['eip155:56'],
+      themeMode: 'light'
+    });
 
-    // اتصال به کیف پول
+    // اتصال و باز شدن modal
     await wcProvider.connect();
 
+    if (wcProvider.uri) {
+      modal.openModal({ uri: wcProvider.uri });
+    }
+
+    // دریافت اطلاعات کیف پول
     const ethersProvider = new ethers.BrowserProvider(wcProvider);
     const signer = await ethersProvider.getSigner();
     const address = await signer.getAddress();
     const balance = await ethersProvider.getBalance(address);
 
-    // نمایش اطلاعات
     document.getElementById('address').textContent =` آدرس: ${address}`;
     document.getElementById('balance').textContent =` موجودی: ${ethers.formatEther(balance)} BNB`;
 
@@ -47,6 +50,6 @@ document.getElementById('connectBtn').addEventListener('click', async () => {
 
   } catch (err) {
     console.error('خطا در اتصال:', err);
-    alert('اتصال انجام نشد');
+    alert('اتصال به کیف پول انجام نشد');
   }
 });
