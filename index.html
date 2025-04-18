@@ -1,25 +1,30 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>اتصال با WalletConnect V2</title>
 </head>
-<body dir="rtl" style="font-family: sans-serif; padding: 2rem">
+<body style="font-family:sans-serif; padding:2rem">
 
-<button id="connect">اتصال کیف پول</button>
-<div id="wallet-options" style="display:none">
-  <p>لطفاً کیف پول خود را انتخاب کنید:</p>
-  <button id="trust">اتصال با Trust Wallet</button>
-  <button id="metamask">اتصال با MetaMask</button>
-</div>
+  <!-- دکمه شروع اتصال -->
+  <button id="connect">اتصال کیف پول</button>
 
-<div id="info" style="display:none; margin-top:1rem">
-  <p>آدرس: <code id="address"></code></p>
-  <p>موجودی BNB: <strong id="balance"></strong></p>
-  <button id="send">ارسال کل موجودی</button>
-</div>
+  <!-- منوی انتخاب کیف پول -->
+  <div id="wallet-options" style="display:none; margin-top:1rem">
+    <p>لطفاً کیف پول خود را انتخاب کنید:</p>
+    <button id="trust">اتصال با Trust Wallet</button>
+    <button id="metamask">اتصال با MetaMask</button>
+  </div>
 
+  <!-- نمایش آدرس و موجودی بعد از اتصال -->
+  <div id="info" style="display:none; margin-top:1rem">
+    <p>آدرس: <code id="address"></code></p>
+    <p>موجودی BNB: <strong id="balance"></strong></p>
+    <button id="send">ارسال کل موجودی</button>
+  </div>
+
+  <!-- لود اسکریپت با مسیر نسبی -->
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
