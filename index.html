@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="fa">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WalletConnect + Modal</title>
-  </head>
-  <body>
-    <h1>اتصال با WalletConnect</h1>
-    <button id="connectBtn">اتصال به کیف پول</button>
-    <p id="address">آدرس: ---</p>
-    <p id="balance">موجودی: ---</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>اتصال با WalletConnect V2</title>
+</head>
+<body dir="rtl" style="font-family: sans-serif; padding: 2rem">
+  <button id="connect">🔗 اتصال کیف پول</button>
 
-    <script type="module" src="/main.js"></script>
-  </body>
+  <div id="info" style="display:none; margin-top:1rem">
+    <p>آدرس: <code id="address"></code></p>
+    <p>موجودی BNB: <strong id="balance"></strong></p>
+    <button id="send">🚀 ارسال کل موجودی</button>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
 </html>

