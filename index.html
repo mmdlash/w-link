@@ -1,23 +1,16 @@
 <!DOCTYPE html>
 <html lang="fa">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WalletConnect BNB</title>
-</head>
-<body>
-  <h1>اتصال به کیف پول BNB</h1>
-  <button id="connectBtn">ساخت لینک اتصال</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletConnect + Modal</title>
+  </head>
+  <body>
+    <h1>اتصال با WalletConnect</h1>
+    <button id="connectBtn">اتصال به کیف پول</button>
+    <p id="address">آدرس: ---</p>
+    <p id="balance">موجودی: ---</p>
 
-  <div id="wallet-links" style="margin-top: 1rem; display: none;">
-    <p>انتخاب کیف پول:</p>
-    <button id="trust">Trust Wallet</button>
-    <button id="metamask">MetaMask</button>
-  </div>
-
-  <p id="address">آدرس: ---</p>
-  <p id="balance">موجودی: ---</p>
-
-  <script type="module" src="/main.js"></script>
-</body>
+    <script type="module" src="/main.js"></script>
+  </body>
 </html>

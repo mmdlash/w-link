@@ -1,61 +1,52 @@
 import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
+import { WalletConnectModal } from '@walletconnect/modal';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const connectBtn = document.getElementById('connectBtn');
-  const addressEl = document.getElementById('address');
-  const balanceEl = document.getElementById('balance');
-  const walletLinks = document.getElementById('wallet-links');
-  const trustBtn = document.getElementById('trust');
-  const metamaskBtn = document.getElementById('metamask');
+let wcProvider;
 
-  let wcUri = '';
+// راه‌اندازی Modal
+const modal = new WalletConnectModal({
+  projectId: '4d08946e6c316bed5e76b450ccbb5256', // ← حتماً جایگزین کن
+  standaloneChains: ['eip155:56'],
+  themeMode: 'light'
+});
 
-  connectBtn.addEventListener('click', async () => {
-    try {
-      const wcProvider = await EthereumProvider.init({
-        projectId: '4d08946e6c316bed5e76b450ccbb5256', // ← Project ID واقعی‌تو بذار
-        chains: [56],
-        showQrModal: false,
-        rpcMap: {
-          56: 'https://bsc-dataseed.binance.org',
-        },
-        metadata: {
-          name: 'BNB Wallet App',
-          description: 'Demo BNB app with WalletConnect V2',
-          url: window.location.origin,
-          icons: ['https://walletconnect.com/walletconnect-logo.png']
-        }
-      });
+document.getElementById('connectBtn').addEventListener('click', async () => {
+  try {
+    wcProvider = await EthereumProvider.init({
+      projectId: '4d08946e6c316bed5e76b450ccbb5256',
+      chains: [56],
+      showQrModal: false,
+      rpcMap: {
+        56: 'https://bsc-dataseed.binance.org',
+      },
+      metadata: {
+        name: 'My BNB App',
+        description: 'Demo WalletConnect Modal + ethers.js',
+        url: window.location.origin,
+        icons: ['https://walletconnect.com/walletconnect-logo.png'],
+      }
+    });
 
-      await wcProvider.connect();
-      wcUri = encodeURIComponent(wcProvider.uri);
+    // باز کردن Modal
+    modal.openModal({ uri: wcProvider.uri });
 
-      // نمایش گزینه‌های کیف پول
-      walletLinks.style.display = 'block';
+    // اتصال به کیف پول
+    await wcProvider.connect();
 
-      // Listener اتصال واقعی بعد از اتصال کیف پول
-      wcProvider.on("connect", async () => {
-        const ethersProvider = new ethers.BrowserProvider(wcProvider);
-        const signer = await ethersProvider.getSigner();
-        const address = await signer.getAddress();
-        const balance = await ethersProvider.getBalance(address);
+    const ethersProvider = new ethers.BrowserProvider(wcProvider);
+    const signer = await ethersProvider.getSigner();
+    const address = await signer.getAddress();
+    const balance = await ethersProvider.getBalance(address);
 
-        addressEl.textContent =` آدرس: ${address}`;
-        balanceEl.textContent =` موجودی: ${ethers.formatEther(balance)} BNB`;
-      });
+    // نمایش اطلاعات
+    document.getElementById('address').textContent =` آدرس: ${address}`;
+    document.getElementById('balance').textContent =` موجودی: ${ethers.formatEther(balance)} BNB`;
 
-    } catch (error) {
-      console.error('خطا در اتصال:', error);
-      alert('خطا در اتصال به کیف پول');
-    }
-  });
+    modal.closeModal();
 
-  trustBtn.onclick = () => {
-    window.location.href = `trust://wc?uri=${wcUri}`;
-  };
-
-  metamaskBtn.onclick = () => {
-    window.location.href = `metamask://wc?uri=${wcUri}`;
-  };
+  } catch (err) {
+    console.error('خطا در اتصال:', err);
+    alert('اتصال انجام نشد');
+  }
 });
