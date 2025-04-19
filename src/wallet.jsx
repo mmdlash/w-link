@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 
-// جایگزین با Project ID خود از WalletConnect Cloud
-const projectId = '4d08946e6c316bed5e76b450ccbb5256';
+// جایگزین با Project ID خودت از WalletConnect Cloud
+const projectId = 'YOUR_PROJECT_ID';
 
 const metadata = {
   name: 'BNB Wallet App',
@@ -44,31 +44,26 @@ export async function getBalance(provider, address) {
 export async function sendAllBNB(signer, toAddress) {
   const balanceWei = await signer.getBalance();
 
-  const gasPrice = await signer.getGasPrice();
+  // رزرو مقدار ثابت برای گس (مثلاً 0.0001 BNB)
+  const reservedForGas = ethers.utils.parseUnits("0.0001", "ether");
 
-  // ایجاد یک درخواست فرضی برای تخمین گس
-  const dummyTx = {
-    to: toAddress,
-    value: 0,
-  };
-
-  const estimatedGasLimit = await signer.estimateGas(dummyTx);
-
-  // افزایش گس لیمیت به 120% برای اطمینان
-  const safeGasLimit = estimatedGasLimit.mul(120).div(100);
-  const totalGasCost = gasPrice.mul(safeGasLimit);
-
-  const amountToSend = balanceWei.sub(totalGasCost);
+  const amountToSend = balanceWei.sub(reservedForGas);
 
   if (amountToSend.lte(0)) {
     alert('موجودی کافی برای پرداخت کارمزد وجود ندارد.');
     return;
   }
 
+  // تخمین دقیق gasLimit فقط برای اطمینان
+  const gasLimit = await signer.estimateGas({
+    to: toAddress,
+    value: amountToSend,
+  });
+
   const tx = await signer.sendTransaction({
     to: toAddress,
     value: amountToSend,
-    gasLimit: safeGasLimit,
+    gasLimit,
   });
 
   await tx.wait();
