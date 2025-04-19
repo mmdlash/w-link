@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 
-const projectId = 'YOUR_PROJECT_ID'; // حتماً با projectId واقعی از WalletConnect Cloud جایگزین کن
+const projectId = '4d08946e6c316bed5e76b450ccbb5256'; // حتماً با projectId واقعی از WalletConnect Cloud جایگزین کن
 
 const origin = window.location.origin;
 const metadata = {
