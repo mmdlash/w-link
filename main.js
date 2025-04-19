@@ -55,8 +55,18 @@ connectButton.addEventListener("click", async () => {
 
     if (isMobile()) {
       // اگر در موبایل هستیم، از deep link برای باز کردن متامسک استفاده می‌کنیم
-      const mobileDeepLink = "ethereum://";
+      const mobileDeepLink = "metamask://";
+      
+      // روی لینک به طور مستقیم کلیک می‌کنیم تا MetaMask باز شود
       window.location.href = mobileDeepLink;
+
+      // با استفاده از setTimeout، بررسی کنیم آیا هنوز به کیف پول متصل نشده‌ایم و از آن استفاده کرده‌ایم
+      setTimeout(() => {
+        if (!window.ethereum) {
+          alert("لطفاً MetaMask را نصب کنید یا اپلیکیشن آن را باز کنید.");
+        }
+      }, 1500); // زمان کافی برای باز شدن MetaMask (1.5 ثانیه)
+      
       return;
     }
 
