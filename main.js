@@ -1,4 +1,4 @@
-import WalletConnectModal from "@walletconnect/modal";
+import { WalletConnectModal } from "@walletconnect/modal";
 import WalletConnectEthereumProvider from "@walletconnect/ethereum-provider";
 import { ethers } from "ethers";
 
