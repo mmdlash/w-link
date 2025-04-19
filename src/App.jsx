@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
-import { connectWallet, disconnectWallet, getBalance, sendAllBNB } from './wallet';
+import {
+  connectWallet,
+  disconnectWallet,
+  getBalance,
+  sendAllBNB,
+} from './wallet';
 
 function App() {
   const [address, setAddress] = useState('');
   const [balance, setBalance] = useState('');
-  const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [recipient, setRecipient] = useState('');
 
   const handleConnect = async () => {
-    const { provider, signer, address } = await connectWallet();
-    setProvider(provider);
+    const { signer, address } = await connectWallet();
     setSigner(signer);
     setAddress(address);
-    const balance = await getBalance(provider, address);
-    setBalance(balance);
+    const bal = await getBalance(null, address);
+    setBalance(bal);
   };
 
   const handleDisconnect = async () => {
     await disconnectWallet();
-    setProvider(null);
     setSigner(null);
     setAddress('');
     setBalance('');
@@ -27,16 +29,16 @@ function App() {
 
   const handleSendAll = async () => {
     if (!recipient) {
-      alert('لطفاً آدرس گیرنده را وارد کنید.');
+      alert('آدرس گیرنده را وارد کنید.');
       return;
     }
     await sendAllBNB(signer, recipient);
-    const updatedBalance = await getBalance(provider, address);
-    setBalance(updatedBalance);
+    const updated = await getBalance(null, address);
+    setBalance(updated);
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', direction: 'rtl' }}>
       <h1>اتصال به کیف پول BNB Smart Chain</h1>
       {!address ? (
         <button onClick={handleConnect}>اتصال به کیف پول</button>
