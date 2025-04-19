@@ -55,8 +55,9 @@ connectButton.addEventListener("click", async () => {
 
     if (isMobile()) {
       // اگر در موبایل هستیم، از deep link برای باز کردن متامسک استفاده می‌کنیم
-      const mobileDeepLink = "metamask://";
+      const mobileDeepLink = "ethereum://";
       window.location.href = mobileDeepLink;
+      return;
     }
 
     // درخواست دسترسی به حساب‌ها
