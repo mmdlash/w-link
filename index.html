@@ -1,22 +1,13 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WalletConnect V2 + Modal Demo</title>
-</head>
-<body style="font-family:sans-serif; padding:2rem;">
-
-  <!-- دکمه اتصال -->
-  <button id="connect">اتصال کیف پول</button>
-
-  <!-- نمایش بعد از اتصال -->
-  <div id="info" style="display:none; margin-top:1rem;">
-    <p>آدرس: <code id="address"></code></p>
-    <p>موجودی: <strong id="balance"></strong></p>
-    <button id="send">ارسال کل موجودی</button>
-  </div>
-
-  <script type="module" src="./src/main.js"></script>
-</body>
+<html lang="fa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>اتصال به کیف پول BNB</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
