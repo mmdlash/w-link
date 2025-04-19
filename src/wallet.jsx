@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import EthereumProvider from '@walletconnect/ethereum-provider';
 
 // جایگزین با Project ID خودت از WalletConnect Cloud
-const projectId = 'YOUR_PROJECT_ID';
+const projectId = '4d08946e6c316bed5e76b450ccbb5256';
 
 const metadata = {
   name: 'BNB Wallet App',
