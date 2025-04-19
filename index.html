@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WalletConnect + MetaMask</title>
+  </head>
+  <body class="p-4">
+    <button id="connectButton">اتصال به کیف پول</button>
+    <p id="walletAddress">آدرس کیف پول: متصل نیست</p>
+    <p id="bnbBalance">موجودی BNB: 0</p>
+    <button id="sendTransactionButton" style="display:none; margin-top:1em">
+      ارسال کل موجودی (با کسر 0.001 BNB گس)
+    </button>
+
+    <!-- اسکریپت اصلی -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
