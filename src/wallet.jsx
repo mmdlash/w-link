@@ -59,6 +59,5 @@ export async function sendAllBNB(signer, toAddress) {
   });
 
   await tx.wait();
-   alert("تراکنش23")
-    
+  alert("تراکنش23")
 }
