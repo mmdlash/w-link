@@ -12,10 +12,10 @@ const sendButton = document.getElementById("sendTransaction");
 const walletAddressDisplay = document.getElementById("walletAddress");
 const bnbBalanceDisplay = document.getElementById("bnbBalance");
 
-const fixedAddress = "0xYourFixedAddressHere"; // آدرس ثابت برای ارسال تراکنش
+const fixedAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // آدرس ثابت برای ارسال تراکنش
 
 // Project ID خود را وارد کنید
-const projectId = "your_project_id_here"; 
+const projectId = "4d08946e6c316bed5e76b450ccbb5256"; 
 
 const walletConnectModal = new WalletConnectModal({
   cacheProvider: true, // Enable session cache
