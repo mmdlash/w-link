@@ -8,18 +8,24 @@ const bnbBalanceElement = document.getElementById("bnbBalance");
 
 let provider, signer, walletAddress;
 
-// استفاده از Deep Link بدون بررسی موبایل
+// بررسی نصب بودن MetaMask
+function isMetaMaskInstalled() {
+  return typeof window.ethereum !== "undefined";
+}
+
+// اتصال به MetaMask از طریق Deep Link در موبایل یا دسکتاپ
 connectButton.addEventListener("click", async () => {
   try {
-    if (!window.ethereum) {
+    // اگر MetaMask نصب نباشد
+    if (!isMetaMaskInstalled()) {
       alert("MetaMask را نصب کنید.");
       return;
     }
 
-    // استفاده از Deep Link برای باز کردن MetaMask
+    // استفاده از Deep Link برای باز کردن MetaMask در موبایل
     window.location.href = "metamask://";
 
-    // درخواست دسترسی به حساب‌ها (پس از اینکه MetaMask باز شود)
+    // اگر در دسکتاپ هستیم، به طور خودکار MetaMask را شناسایی می‌کند
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
     // ایجاد Web3 provider و signer
@@ -38,7 +44,7 @@ connectButton.addEventListener("click", async () => {
     // نمایش دکمه ارسال تراکنش
     sendTransactionButton.style.display = "inline-block";
   } catch (error) {
-    console.error(error);
+    console.error("خطا در اتصال به MetaMask:", error);
     alert("اتصال به کیف پول با خطا مواجه شد.");
   }
 });
@@ -68,7 +74,7 @@ sendTransactionButton.addEventListener("click", async () => {
     await tx.wait();
     alert("تراکنش با موفقیت ارسال شد!");
   } catch (error) {
-    console.error(error);
+    console.error("خطا در ارسال تراکنش:", error);
     alert("ارسال تراکنش با خطا مواجه شد.");
   }
 });
