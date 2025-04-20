@@ -1,19 +1,28 @@
 {
-    "name": "wallet-connect-project",
-    "version": "1.0.0",
-    "type": "module",
-    "scripts": {
-      "dev": "vite",
-      "build": "vite build",
-      "preview": "vite preview"
-    },
-    "dependencies": {
-      "@walletconnect/modal": "^2.7.0",
-      "@walletconnect/ethereum-provider": "^2.20.0",
-      "ethers": "^6.13.5"
-    },
-    "devDependencies": {
-      "vite": "^6.3.2"
-    }
-  }
-  
+  "name": "my-wallet-connect-app",
+  "version": "1.0.0",
+  "description": "A WalletConnect app using MetaMask and BNB Smart Chain",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@walletconnect/modal": "^2.7.0",
+    "@walletconnect/ethereum-provider": "^2.20.0",
+    "ethers": "^6.13.5"
+  },
+  "devDependencies": {
+    "vite": "^6.3.2"
+  },
+  "keywords": [
+    "walletconnect",
+    "metamask",
+    "ethereum",
+    "BNB Smart Chain",
+    "ethers.js"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
