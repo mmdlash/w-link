@@ -8,12 +8,7 @@ const bnbBalanceElement = document.getElementById("bnbBalance");
 
 let provider, signer, walletAddress;
 
-// بررسی اینکه آیا MetaMask نصب است
-if (typeof window.ethereum === "undefined") {
-  alert("MetaMask را نصب کنید.");
-}
-
-// اتصال به MetaMask از طریق Deep Link در موبایل
+// استفاده از Deep Link بدون بررسی موبایل
 connectButton.addEventListener("click", async () => {
   try {
     if (!window.ethereum) {
@@ -21,13 +16,10 @@ connectButton.addEventListener("click", async () => {
       return;
     }
 
-    // اگر در موبایل هستیم، از Deep Link برای باز کردن MetaMask استفاده می‌کنیم
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      window.location.href = "metamask://";
-      return;
-    }
+    // استفاده از Deep Link برای باز کردن MetaMask
+    window.location.href = "metamask://";
 
-    // درخواست دسترسی به حساب‌ها
+    // درخواست دسترسی به حساب‌ها (پس از اینکه MetaMask باز شود)
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
     // ایجاد Web3 provider و signer
