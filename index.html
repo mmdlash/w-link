@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WalletConnect App</title>
+    <title>Connect MetaMask with ethers.js</title>
   </head>
   <body>
-    <h1>WalletConnect v2 with BNB Smart Chain</h1>
-    <button id="connectWallet">Connect Wallet</button>
-    <p>Wallet Address: <span id="walletAddress">Not Connected</span></p>
-    <p>BNB Balance: <span id="bnbBalance">0</span></p>
-    <button id="sendTransaction" disabled>Send All BNB</button>
-    <script type="module" src="/main.js"></script>
+    <div>
+      <button id="connectButton">اتصال به کیف پول</button>
+      <p id="walletAddress">آدرس کیف پول: متصل نیست</p>
+      <p id="bnbBalance">موجودی BNB: 0</p>
+      <button id="sendTransactionButton" style="display:none;">
+        ارسال تمام موجودی (با کسر 0.001 BNB گس)
+      </button>
+    </div>
+
+    <script type="module" src="main.js"></script>
   </body>
 </html>
