@@ -13,11 +13,17 @@ if (typeof window.ethereum === "undefined") {
   alert("MetaMask را نصب کنید.");
 }
 
-// اتصال به MetaMask
+// اتصال به MetaMask از طریق Deep Link در موبایل
 connectButton.addEventListener("click", async () => {
   try {
     if (!window.ethereum) {
       alert("MetaMask را نصب کنید.");
+      return;
+    }
+
+    // اگر در موبایل هستیم، از Deep Link برای باز کردن MetaMask استفاده می‌کنیم
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.location.href = "metamask://";
       return;
     }
 
