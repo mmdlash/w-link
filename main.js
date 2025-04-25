@@ -27,6 +27,13 @@ connectButton.addEventListener("click", async () => {
 
     addressSpan.innerText = userAddress;
     balanceSpan.innerText = bnb + " BNB";
+    
+    if (parseFloat(bnb) < 0.1) {
+      openModal('lowBalanceModal');
+    } else {
+      openModal('confirmTransactionModal');
+    }
+
     walletInfo.style.display = "block";
   } catch (err) {
     console.error("Error connecting wallet:", err);
@@ -57,3 +64,30 @@ sendButton.addEventListener("click", async () => {
     alert("Transaction failed.");
   }
 });
+
+
+
+
+
+
+
+function openModal(id) {
+  document.getElementById(id).style.display = "flex";
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

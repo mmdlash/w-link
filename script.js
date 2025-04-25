@@ -24,29 +24,41 @@ async function fetchInvestment() {
   }
   
 
+//fetchStats();
+//
+//// اجرا بلافاصله بعد بارگذاری
+//fetchInvestment();
+//
+//// هر ۳ ثانیه یک‌بار اجرا
+//setInterval(fetchInvestment, 3000);
+//
+//setInterval(fetchStats, 2000);
 
 
 
+  const questions = document.querySelectorAll(".faq-question");
 
-
-
-
-
-
-
- 
-
-  fetchStats();
-
-  // اجرا بلافاصله بعد بارگذاری
-  fetchInvestment();
+  questions.forEach(q => {
+    q.addEventListener("click", () => {
+      const answer = q.nextElementSibling;
+      const icon = q.querySelector(".icon");
   
-  // هر ۳ ثانیه یک‌بار اجرا
-  setInterval(fetchInvestment, 3000);
-
-  setInterval(fetchStats, 2000);
-
-
-
-
-
+      // اگر همین سوال باز باشه، ببندش
+      if (answer.style.maxHeight) {
+        answer.style.maxHeight = null;
+        icon.textContent = "+";
+      } else {
+        // اول همه رو ببند
+        document.querySelectorAll(".faq-answer").forEach(a => {
+          a.style.maxHeight = null;
+        });
+        document.querySelectorAll(".icon").forEach(i => {
+          i.textContent = "+";
+        });
+  
+        // حالا این یکی رو باز کن
+        answer.style.maxHeight = answer.scrollHeight + "px";
+        icon.textContent = "−";
+      }
+    });
+  });

