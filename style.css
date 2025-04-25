@@ -1,0 +1,247 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+
+.header{
+    background-color: #0D1117;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    box-sizing: border-box;
+    padding: 10px;
+}
+.logo{
+    display: flex;
+    align-items: center;
+    height: 40px;
+}
+.logo img{
+    width: inherit;
+    height: inherit;
+}
+.logo h1{
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.header button {
+    background: linear-gradient(to bottom, #f3ba2f, #d99a11);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 6px 0 #b07b0f;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+  
+.header button:active {
+  box-shadow: 0 2px 0 #b07b0f;
+  transform: translateY(4px);
+}
+
+.hero-section{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px;
+    background-color: #0D1117;
+    color: white;
+}
+.hero-section .intro{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 20px 0;
+}
+.hero-section .intro h1{
+    font-size: 18px;
+    
+}
+.hero-section .intro span{
+    font-size: 15px;
+    margin: 20px 0;
+}
+.hero-section .intro button{
+    align-items: center;
+    appearance: none;
+    background-image: radial-gradient(100% 100% at 100% 0, #5adaff 0, #5468ff 100%);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,rgba(45, 35, 66, .3) 0 7px 13px -3px,rgba(58, 65, 111, .5) 0 -3px 0 inset;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: "JetBrains Mono",monospace;
+    height: 48px;
+    justify-content: center;
+    line-height: 1;
+    list-style: none;
+    overflow: hidden;
+    padding-left: 16px;
+    padding-right: 16px;
+    position: relative;
+    text-align: left;
+    text-decoration: none;
+    transition: box-shadow .15s,transform .15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    will-change: box-shadow,transform;
+    font-size: 18px;
+  }
+  .hero-section .intro button:active {
+    box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #3c4fe0 0 -3px 0 inset;
+  }
+
+
+
+.hero-section .logo-mob{
+    height: min-content;
+    
+}
+.hero-section .logo-mob img{
+    
+    width: 100%;
+    height: 100%;
+}
+
+
+
+.stats-section{
+    background: linear-gradient(to bottom, #0D1117, #0B0E14);
+    text-align: center;
+    padding-top: 50px;
+
+}
+.xbnb{
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 3px rgba(230, 217, 217, 0.5);
+}
+.stats-container{
+    display: flex;
+    flex-wrap: wrap;
+}
+.stat-cardx{
+    width: 50%;
+}
+.stat-card{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top left, #11161e, #0b0e14);
+    box-sizing: border-box;
+    margin: 10px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0, 255, 170, 0.1);
+}
+
+.stat-card img{
+    width: 60px;
+}
+
+.label{
+    margin: 10px 0;
+    color: white;
+}
+
+.value{
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #00ffa6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.vv{
+    display: flex;
+}
+.vv img{
+    width: 20px;
+    margin-left: 5px;
+}
+
+
+
+
+
+
+
+.metamask{
+    background-color: #0B0E14;
+    padding: 15px 25px;
+    box-sizing: border-box;
+    color: white;
+    padding-top: 90px;
+}
+.icon-text{
+    display: flex;
+    align-items: flex-start;
+    font-size: 20px;
+}
+
+.icon-meta{
+    width: 50px;
+    margin-right: 20px;
+}
+
+
+.xss{
+    margin: 10px 0;
+}
+
+
+
+.message-box {
+    background-color: #1e1e2f;
+    padding: 15px 20px;
+    border-radius: 12px;
+    width: fit-content;
+    position: relative;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.box-tail {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 30px;
+    width: 20px;
+    height: 10px;
+    background-color: #1e1e2f;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+
+.about{
+    padding: 10px 15px;
+    background-color: #0B0E14;
+    color: white;
+    padding-top: 100px;
+}
+.about p{
+    display: flex;
+    align-items: center;
+}
+.about span{
+    font-size: 30px;
+    margin-right: 5px;
+}
+.a3{
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+
