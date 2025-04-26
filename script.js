@@ -36,29 +36,114 @@ async function fetchInvestment() {
 
 
 
-  const questions = document.querySelectorAll(".faq-question");
 
-  questions.forEach(q => {
-    q.addEventListener("click", () => {
+
+const questions = document.querySelectorAll(".faq-question");
+
+questions.forEach(q => {
+  ['click', 'touchstart'].forEach(evt => {
+    q.addEventListener(evt, () => {
       const answer = q.nextElementSibling;
       const icon = q.querySelector(".icon");
-  
-      // اگر همین سوال باز باشه، ببندش
+
+      // اگر همین سوال باز بود، ببندش
       if (answer.style.maxHeight) {
         answer.style.maxHeight = null;
         icon.textContent = "+";
       } else {
-        // اول همه رو ببند
+        // همه رو ببند
         document.querySelectorAll(".faq-answer").forEach(a => {
           a.style.maxHeight = null;
         });
         document.querySelectorAll(".icon").forEach(i => {
           i.textContent = "+";
         });
-  
-        // حالا این یکی رو باز کن
+
+        // این یکی رو باز کن
         answer.style.maxHeight = answer.scrollHeight + "px";
         icon.textContent = "−";
       }
     });
   });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
