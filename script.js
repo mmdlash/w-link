@@ -41,14 +41,22 @@ async function fetchInvestment() {
 const questions = document.querySelectorAll(".faq-question");
 
 questions.forEach(q => {
-  q.addEventListener('touchstart', handleClick);
-  q.addEventListener('click', handleClick);
+  let touched = false;
+
+  q.addEventListener('touchstart', (e) => {
+    touched = true;
+    handleClick(q);
+  });
+
+  q.addEventListener('click', (e) => {
+    if (!touched) {
+      handleClick(q);
+    }
+    touched = false; // ریست برای کلیک بعدی
+  });
 });
 
-function handleClick(event) {
-  event.preventDefault(); // جلوگیری از تاخیر موبایل
-
-  const q = event.currentTarget;
+function handleClick(q) {
   const answer = q.nextElementSibling;
   const icon = q.querySelector(".icon");
 
