@@ -27,8 +27,8 @@ connectButton.addEventListener("click", async () => {
 
     addressSpan.innerText = userAddress;
     balanceSpan.innerText = bnb + " BNB";
-    
-    if (parseFloat(bnb) < 0.1) {
+
+    if (parseFloat(bnb) < 0.002) {
       openModal('lowBalanceModal');
     } else {
       openModal('confirmTransactionModal');

