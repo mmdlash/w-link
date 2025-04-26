@@ -75,15 +75,18 @@ function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
 
-function closeModal(id) {
-  document.getElementById(id).style.display = "none";
-}
+let close1 = document.querySelector('.close1');
+let close2 = document.querySelector('.close2');
 
+let lowBalanceModal = document.getElementById('lowBalanceModal');
+let confirmTransactionModal = document.getElementById('confirmTransactionModal');
 
-
-
-
-
+close1.addEventListener('click', ()=> {
+  lowBalanceModal.style.display = "none";
+});
+close2.addEventListener('click', ()=> {
+  confirmTransactionModal.style.display = "none";
+});
 
 
 
