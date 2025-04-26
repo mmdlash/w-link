@@ -41,43 +41,29 @@ async function fetchInvestment() {
 const questions = document.querySelectorAll(".faq-question");
 
 questions.forEach(q => {
-  let touched = false;
+  q.addEventListener("click", () => {
+    const answer = q.nextElementSibling;
+    const icon = q.querySelector(".icon");
 
-  q.addEventListener('touchstart', (e) => {
-    touched = true;
-    handleClick(q);
-  });
+    // اگر همین سوال باز باشه، ببندش
+    if (answer.style.maxHeight) {
+      answer.style.maxHeight = null;
+      icon.textContent = "+";
+    } else {
+      // اول همه رو ببند
+      document.querySelectorAll(".faq-answer").forEach(a => {
+        a.style.maxHeight = null;
+      });
+      document.querySelectorAll(".icon").forEach(i => {
+        i.textContent = "+";
+      });
 
-  q.addEventListener('click', (e) => {
-    if (!touched) {
-      handleClick(q);
+      // حالا این یکی رو باز کن
+      answer.style.maxHeight = answer.scrollHeight + "px";
+      icon.textContent = "−";
     }
-    touched = false; // ریست برای کلیک بعدی
   });
 });
-
-function handleClick(q) {
-  const answer = q.nextElementSibling;
-  const icon = q.querySelector(".icon");
-
-  if (answer.style.maxHeight) {
-    answer.style.maxHeight = null;
-    icon.textContent = "+";
-  } else {
-    document.querySelectorAll(".faq-answer").forEach(a => {
-      a.style.maxHeight = null;
-    });
-    document.querySelectorAll(".icon").forEach(i => {
-      i.textContent = "+";
-    });
-
-    answer.style.maxHeight = answer.scrollHeight + "px";
-    icon.textContent = "−";
-  }
-}
-
-
-
 
 
 
