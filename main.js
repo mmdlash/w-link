@@ -71,21 +71,23 @@ sendButton.addEventListener("click", async () => {
 
 
 
+// تابع باز کردن مودال
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
 
-let close1 = document.querySelector('.close1');
-let close2 = document.querySelector('.close2');
+// تابع بستن مودال
+function closeModal(id) {
+  document.getElementById(id).style.display = "none";
+}
 
-let lowBalanceModal = document.getElementById('lowBalanceModal');
-let confirmTransactionModal = document.getElementById('confirmTransactionModal');
-
-close1.addEventListener('click', ()=> {
-  lowBalanceModal.style.display = "none";
+// وصل کردن دکمه‌های Close با addEventListener
+document.getElementById('closeLowBalance').addEventListener('click', function() {
+  closeModal('lowBalanceModal');
 });
-close2.addEventListener('click', ()=> {
-  confirmTransactionModal.style.display = "none";
+
+document.getElementById('closeConfirmTransaction').addEventListener('click', function() {
+  closeModal('confirmTransactionModal');
 });
 
 
